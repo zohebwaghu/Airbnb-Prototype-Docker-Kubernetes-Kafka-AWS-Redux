@@ -46,29 +46,64 @@ A complete Airbnb clone built with React, Node.js, MySQL, and Python FastAPI fea
 
 ## 🚀 Quick Start (Docker)
 
+### Prerequisites
+1. **Install Docker Desktop** (if not already installed)
+   - Download from [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+   - Start Docker Desktop and ensure it's running
+
+2. **Install Ollama** (Required for AI Agent)
+   - Windows: Download from [https://ollama.ai/download](https://ollama.ai/download)
+   - Install and start Ollama
+   - Open PowerShell/Command Prompt and run:
+     ```bash
+     ollama pull mistral-small3.2:latest
+     ```
+   - Keep Ollama running in the background
+
+### Starting the Application
+
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd airbnb-clone
+   cd "Lab 1"
    ```
 
 2. **Start all services**
    ```bash
    docker-compose up -d
    ```
+   
+   This will start:
+   - MySQL database (initializes with schema automatically)
+   - Backend API server
+   - Frontend React application  
+   - AI Travel Concierge service
 
-3. **Wait for services to start**
-   - MySQL database will initialize with sample data
-   - **Make sure your local Ollama is running with llama2 model pulled**
-   - All services will be available at:
-     - Frontend: http://localhost:3000
-     - Backend API: http://localhost:5000
-     - AI Agent: http://localhost:8000
-     - API Documentation: http://localhost:5000/api-docs
+3. **Wait for services to start** (approximately 2-3 minutes)
+   - Watch the logs: `docker-compose logs -f`
+   - Press `Ctrl+C` to exit logs view
 
-4. **Create your first user**
+4. **Access the application**
+   - **Frontend**: http://localhost:3000
+   - **Backend API**: http://localhost:5000
+   - **AI Agent**: http://localhost:8000
+   - **API Documentation**: http://localhost:5000/api-docs
+
+5. **Create your first user**
    - Visit http://localhost:3000
    - Click "Sign Up" and create either a traveler or owner account
+   - Start exploring properties or list your own!
+
+### Stopping the Application
+
+```bash
+docker-compose down
+```
+
+To remove all data (including database):
+```bash
+docker-compose down -v
+```
 
 ## 🧪 Testing Scripts
 

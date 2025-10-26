@@ -1,0 +1,220 @@
+.favorites-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.favorites-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.favorites-header h2 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.favorites-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 30px;
+}
+
+.favorite-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+}
+
+.favorite-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.favorite-image {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.favorite-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.no-image {
+  width: 100%;
+  height: 100%;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.remove-favorite-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.remove-favorite-btn:hover {
+  background: white;
+  transform: scale(1.1);
+}
+
+.favorite-info {
+  padding: 20px;
+}
+
+.favorite-header {
+  margin-bottom: 15px;
+}
+
+.favorite-header h3 {
+  margin: 0 0 5px 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.favorite-location {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.favorite-details {
+  margin-bottom: 20px;
+}
+
+.favorite-details p {
+  margin: 5px 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.favorite-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.view-details-btn {
+  background: #6c757d;
+  color: white;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+  flex: 1;
+  text-align: center;
+}
+
+.view-details-btn:hover {
+  background: #5a6268;
+  color: white;
+}
+
+.book-now-btn {
+  background: #e74c3c;
+  color: white;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+  flex: 1;
+  text-align: center;
+}
+
+.book-now-btn:hover {
+  background: #c0392b;
+  color: white;
+}
+
+.no-favorites {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  grid-column: 1 / -1;
+}
+
+.no-favorites h3 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.no-favorites p {
+  margin-bottom: 25px;
+  font-size: 1.1rem;
+}
+
+.browse-btn {
+  background: #e74c3c;
+  color: white;
+  text-decoration: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  display: inline-block;
+}
+
+.browse-btn:hover {
+  background: #c0392b;
+  color: white;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  border: 1px solid #f5c6cb;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .favorites-container {
+    padding: 15px;
+  }
+
+  .favorites-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .favorite-actions {
+    flex-direction: column;
+  }
+
+  .favorite-card {
+    max-width: 100%;
+  }
+}

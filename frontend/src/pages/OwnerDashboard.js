@@ -13,18 +13,28 @@ const OwnerDashboard = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (isAuthenticated && user.user_type === 'owner') {
+    if (isAuthenticated && isOwner) {
       fetchData();
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, isOwner]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      await Promise.all([
+      setError('');
+      
+      // Fetch properties and bookings independently to avoid one failure blocking the other
+      const [propertiesResult, bookingsResult] = await Promise.allSettled([
         fetchProperties(),
         fetchBookings()
       ]);
+      
+      if (propertiesResult.status === 'rejected') {
+        console.error('Failed to fetch properties:', propertiesResult.reason);
+      }
+      if (bookingsResult.status === 'rejected') {
+        console.error('Failed to fetch bookings:', bookingsResult.reason);
+      }
     } catch (error) {
       setError('Failed to load dashboard data');
       console.error('Error fetching dashboard data:', error);
@@ -34,23 +44,13 @@ const OwnerDashboard = () => {
   };
 
   const fetchProperties = async () => {
-    try {
-      const response = await axios.get('/properties/owner/properties');
-      setProperties(response.data.properties || []);
-    } catch (error) {
-      console.error('Error fetching properties:', error);
-      throw error;
-    }
+    const response = await axios.get('/properties/owner/properties');
+    setProperties(response.data.properties || []);
   };
 
   const fetchBookings = async () => {
-    try {
-      const response = await axios.get('/users/bookings');
-      setBookings(response.data.bookings || []);
-    } catch (error) {
-      console.error('Error fetching bookings:', error);
-      throw error;
-    }
+    const response = await axios.get('/bookings');
+    setBookings(response.data.bookings || []);
   };
 
   const handleAcceptBooking = async (bookingId) => {

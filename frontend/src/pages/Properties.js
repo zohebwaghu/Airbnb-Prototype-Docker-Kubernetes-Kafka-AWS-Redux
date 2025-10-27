@@ -1,33 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import FiltersModal from '../components/FiltersModal';
 import './Properties.css';
 
 const Properties = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [filters, setFilters] = useState({
+  const [hasSearched, setHasSearched] = useState(false);
+  const [showFiltersModal, setShowFiltersModal] = useState(false);
+  
+  const [searchFilters, setSearchFilters] = useState({
     location: '',
-    city: '',
-    country: '',
     check_in_date: '',
     check_out_date: '',
-    guests: 1,
+    guests: 1
+  });
+
+  const [advancedFilters, setAdvancedFilters] = useState({
     min_price: '',
     max_price: '',
     bedrooms: '',
-    property_type: ''
+    bathrooms: '',
+    property_type: '',
+    amenities: []
   });
 
   useEffect(() => {
     fetchProperties();
   }, []);
 
-  const fetchProperties = async () => {
+  const fetchProperties = async (filters = {}) => {
     try {
       setLoading(true);
-      const response = await axios.get('/properties');
+      setError('');
+      const queryParams = new URLSearchParams();
+      
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value && value !== '') {
+          if (Array.isArray(value) && value.length > 0) {
+            queryParams.append(key, value.join(','));
+          } else if (!Array.isArray(value)) {
+            queryParams.append(key, value);
+          }
+        }
+      });
+
+      const url = queryParams.toString() ? `/properties?${queryParams}` : '/properties';
+      const response = await axios.get(url);
       setProperties(response.data.properties || []);
     } catch (error) {
       setError('Failed to load properties');
@@ -37,58 +58,45 @@ const Properties = () => {
     }
   };
 
-  const handleFilterChange = (e) => {
-    setFilters(prev => ({
+  const handleSearchFilterChange = (e) => {
+    setSearchFilters(prev => ({
       ...prev,
       [e.target.name]: e.target.value
     }));
   };
 
-  const handleFilterSubmit = async (e) => {
+  const handleSearchSubmit = async (e) => {
     e.preventDefault();
-    try {
-      setLoading(true);
-      const queryParams = new URLSearchParams();
-
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) {
-          queryParams.append(key, value);
-        }
-      });
-
-      const response = await axios.get(`/properties?${queryParams}`);
-      setProperties(response.data.properties || []);
-    } catch (error) {
-      setError('Failed to filter properties');
-      console.error('Error filtering properties:', error);
-    } finally {
-      setLoading(false);
-    }
+    setHasSearched(true);
+    const allFilters = { ...searchFilters, ...advancedFilters };
+    await fetchProperties(allFilters);
   };
 
-  const clearFilters = () => {
-    setFilters({
+  const handleAdvancedFiltersApply = (filters) => {
+    setAdvancedFilters(filters);
+    setShowFiltersModal(false);
+    const allFilters = { ...searchFilters, ...filters };
+    fetchProperties(allFilters);
+  };
+
+  const clearAllFilters = () => {
+    setSearchFilters({
       location: '',
-      city: '',
-      country: '',
       check_in_date: '',
       check_out_date: '',
-      guests: 1,
+      guests: 1
+    });
+    setAdvancedFilters({
       min_price: '',
       max_price: '',
       bedrooms: '',
-      property_type: ''
+      bathrooms: '',
+      property_type: '',
+      amenities: []
     });
+    setHasSearched(false);
     fetchProperties();
   };
-
-  if (loading) {
-    return (
-      <div className="properties-container">
-        <div className="spinner"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="properties-container">
@@ -97,182 +105,131 @@ const Properties = () => {
         <p>Discover amazing properties around the world</p>
       </div>
 
-      <div className="search-filters">
-        <form onSubmit={handleFilterSubmit} className="filter-form">
-          <div className="filter-row">
-            <div className="filter-group">
-              <label>Location</label>
+      <div className="search-section">
+        <form onSubmit={handleSearchSubmit} className="simple-search-form">
+          <div className="search-inputs">
+            <div className="search-input-group">
+              <label>Where</label>
               <input
                 type="text"
                 name="location"
-                value={filters.location}
-                onChange={handleFilterChange}
-                placeholder="Where are you going?"
+                value={searchFilters.location}
+                onChange={handleSearchFilterChange}
+                placeholder="Search destinations"
               />
             </div>
 
-            <div className="filter-group">
-              <label>City</label>
-              <input
-                type="text"
-                name="city"
-                value={filters.city}
-                onChange={handleFilterChange}
-                placeholder="City name"
-              />
-            </div>
-
-            <div className="filter-group">
-              <label>Country</label>
-              <input
-                type="text"
-                name="country"
-                value={filters.country}
-                onChange={handleFilterChange}
-                placeholder="Country name"
-              />
-            </div>
-          </div>
-
-          <div className="filter-row">
-            <div className="filter-group">
-              <label>Check-in</label>
+            <div className="search-input-group">
+              <label>Check in</label>
               <input
                 type="date"
                 name="check_in_date"
-                value={filters.check_in_date}
-                onChange={handleFilterChange}
+                value={searchFilters.check_in_date}
+                onChange={handleSearchFilterChange}
               />
             </div>
 
-            <div className="filter-group">
-              <label>Check-out</label>
+            <div className="search-input-group">
+              <label>Check out</label>
               <input
                 type="date"
                 name="check_out_date"
-                value={filters.check_out_date}
-                onChange={handleFilterChange}
+                value={searchFilters.check_out_date}
+                onChange={handleSearchFilterChange}
               />
             </div>
 
-            <div className="filter-group">
+            <div className="search-input-group">
               <label>Guests</label>
               <select
                 name="guests"
-                value={filters.guests}
-                onChange={handleFilterChange}
+                value={searchFilters.guests}
+                onChange={handleSearchFilterChange}
               >
                 <option value={1}>1 Guest</option>
                 <option value={2}>2 Guests</option>
                 <option value={3}>3 Guests</option>
                 <option value={4}>4 Guests</option>
-                <option value={5}>5+ Guests</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="filter-row">
-            <div className="filter-group">
-              <label>Min Price</label>
-              <input
-                type="number"
-                name="min_price"
-                value={filters.min_price}
-                onChange={handleFilterChange}
-                placeholder="Min price"
-                min="0"
-              />
-            </div>
-
-            <div className="filter-group">
-              <label>Max Price</label>
-              <input
-                type="number"
-                name="max_price"
-                value={filters.max_price}
-                onChange={handleFilterChange}
-                placeholder="Max price"
-                min="0"
-              />
-            </div>
-
-            <div className="filter-group">
-              <label>Bedrooms</label>
-              <select
-                name="bedrooms"
-                value={filters.bedrooms}
-                onChange={handleFilterChange}
-              >
-                <option value="">Any</option>
-                <option value={1}>1 Bedroom</option>
-                <option value={2}>2 Bedrooms</option>
-                <option value={3}>3 Bedrooms</option>
-                <option value={4}>4+ Bedrooms</option>
+                <option value={5}>5 Guests</option>
+                <option value={6}>6 Guests</option>
+                <option value={7}>7 Guests</option>
+                <option value={8}>8+ Guests</option>
               </select>
             </div>
 
-            <div className="filter-group">
-              <label>Property Type</label>
-              <select
-                name="property_type"
-                value={filters.property_type}
-                onChange={handleFilterChange}
-              >
-                <option value="">Any</option>
-                <option value="apartment">Apartment</option>
-                <option value="house">House</option>
-                <option value="condo">Condo</option>
-                <option value="townhouse">Townhouse</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="filter-actions">
-            <button type="submit" className="search-btn">Search</button>
-            <button type="button" onClick={clearFilters} className="clear-btn">Clear Filters</button>
+            <button type="submit" className="search-btn">
+              <span className="search-icon">🔍</span> Search
+            </button>
           </div>
         </form>
-      </div>
 
-      {error && <div className="error-message">{error}</div>}
-
-      <div className="properties-grid">
-        {properties.length === 0 ? (
-          <div className="no-properties">
-            <h3>No properties found</h3>
-            <p>Try adjusting your search filters</p>
+        {hasSearched && (
+          <div className="filters-bar">
+            <button className="filters-btn" onClick={() => setShowFiltersModal(true)}>
+              <span>⚙️</span> Filters
+            </button>
+            <button className="clear-filters-btn" onClick={clearAllFilters}>
+              Clear all
+            </button>
           </div>
-        ) : (
-          properties.map(property => (
-            <Link key={property.id} to={`/property/${property.id}`} className="property-card">
-              <div className="property-image">
-                {property.primary_image ? (
-                  <img src={property.primary_image} alt={property.name} />
-                ) : (
-                  <div className="no-image">No Image</div>
-                )}
-              </div>
-
-              <div className="property-info">
-                <div className="property-header">
-                  <h3>{property.name}</h3>
-                  <p className="property-location">{property.city}, {property.country}</p>
-                </div>
-
-                <div className="property-details">
-                  <span className="property-type">{property.property_type}</span>
-                  <span className="property-specs">{property.bedrooms} bed · {property.bathrooms} bath · {property.max_guests} guests</span>
-                </div>
-
-                <div className="property-price">
-                  <strong>${property.base_price}</strong> night
-                </div>
-              </div>
-            </Link>
-          ))
         )}
       </div>
+
+      {loading && <div className="loading-spinner"><div className="spinner"></div></div>}
+      {error && <div className="error-message">{error}</div>}
+
+      {!loading && (
+        <div className="properties-results">
+          <div className="results-header">
+            <h3>{properties.length} stays {searchFilters.location && `in ${searchFilters.location}`}</h3>
+          </div>
+
+          <div className="properties-grid">
+            {properties.length === 0 ? (
+              <div className="no-properties">
+                <h3>No properties found</h3>
+                <p>Try adjusting your search filters</p>
+              </div>
+            ) : (
+              properties.map(property => (
+                <Link key={property.id} to={`/property/${property.id}`} className="property-card">
+                  <div className="property-image">
+                    {property.primary_image ? (
+                      <img src={property.primary_image} alt={property.name} />
+                    ) : (
+                      <div className="no-image">No Image</div>
+                    )}
+                  </div>
+
+                  <div className="property-info">
+                    <div className="property-header">
+                      <h3>{property.name}</h3>
+                      <p className="property-location">{property.city}, {property.country}</p>
+                    </div>
+
+                    <div className="property-details">
+                      <span className="property-type">{property.property_type}</span>
+                      <span className="property-specs">{property.bedrooms} bed · {property.bathrooms} bath · {property.max_guests} guests</span>
+                    </div>
+
+                    <div className="property-price">
+                      <strong>${property.base_price}</strong> night
+                    </div>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {showFiltersModal && (
+        <FiltersModal
+          filters={advancedFilters}
+          onApply={handleAdvancedFiltersApply}
+          onClose={() => setShowFiltersModal(false)}
+        />
+      )}
     </div>
   );
 };

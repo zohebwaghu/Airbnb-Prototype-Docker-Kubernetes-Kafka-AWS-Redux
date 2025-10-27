@@ -7,6 +7,7 @@ import Signup from './pages/Signup';
 import Profile from './pages/Profile';
 import Properties from './pages/Properties';
 import PropertyDetails from './pages/PropertyDetails';
+import HostProfile from './pages/HostProfile';
 import Bookings from './pages/Bookings';
 import Favorites from './pages/Favorites';
 import OwnerDashboard from './pages/OwnerDashboard';
@@ -30,6 +31,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/properties" element={<Properties />} />
             <Route path="/property/:id" element={<PropertyDetails />} />
+            <Route path="/host/:id" element={<HostProfile />} />
             <Route path="/bookings" element={<Bookings />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/owner/dashboard" element={<OwnerDashboard />} />

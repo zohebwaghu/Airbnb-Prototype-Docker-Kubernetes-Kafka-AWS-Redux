@@ -183,9 +183,9 @@ const PropertyDetails = () => {
                 {property.max_guests} guests · {property.bedrooms} bedroom{property.bedrooms > 1 ? 's' : ''} · {property.bathrooms} bath{property.bathrooms > 1 ? 's' : ''}
               </div>
             </div>
-            <div className="host-avatar-large">
+            <Link to={`/host/${property.owner_id}`} className="host-avatar-large">
               {property.owner_name?.charAt(0).toUpperCase()}
-            </div>
+            </Link>
           </div>
 
           <hr className="divider-light" />
@@ -213,6 +213,139 @@ const PropertyDetails = () => {
                 Show all {amenitiesList.length} amenities
               </button>
             )}
+          </div>
+
+          <hr className="divider-light" />
+
+          {/* Ratings and Reviews */}
+          <div className="property-section">
+            <div className="reviews-header">
+              <h3>
+                <span className="star-icon">⭐</span> 4.8 · 127 reviews
+              </h3>
+            </div>
+            <div className="reviews-grid">
+              <div className="review-card">
+                <div className="review-header">
+                  <div className="reviewer-avatar">M</div>
+                  <div className="reviewer-info">
+                    <p className="reviewer-name">Maria</p>
+                    <p className="review-date">October 2024</p>
+                  </div>
+                </div>
+                <p className="review-text">
+                  Amazing place! The location was perfect and the host was very responsive. Would definitely stay here again.
+                </p>
+              </div>
+              <div className="review-card">
+                <div className="review-header">
+                  <div className="reviewer-avatar">J</div>
+                  <div className="reviewer-info">
+                    <p className="reviewer-name">James</p>
+                    <p className="review-date">September 2024</p>
+                  </div>
+                </div>
+                <p className="review-text">
+                  Great experience. The property was exactly as described and very clean. Highly recommend!
+                </p>
+              </div>
+              <div className="review-card">
+                <div className="review-header">
+                  <div className="reviewer-avatar">S</div>
+                  <div className="reviewer-info">
+                    <p className="reviewer-name">Sarah</p>
+                    <p className="review-date">September 2024</p>
+                  </div>
+                </div>
+                <p className="review-text">
+                  Beautiful property with stunning views. The host provided excellent recommendations for local restaurants.
+                </p>
+              </div>
+              <div className="review-card">
+                <div className="review-header">
+                  <div className="reviewer-avatar">D</div>
+                  <div className="reviewer-info">
+                    <p className="reviewer-name">David</p>
+                    <p className="review-date">August 2024</p>
+                  </div>
+                </div>
+                <p className="review-text">
+                  Perfect spot for our vacation. Everything was as expected and check-in was seamless.
+                </p>
+              </div>
+            </div>
+            <button className="show-all-reviews-btn">Show all 127 reviews</button>
+          </div>
+
+          <hr className="divider-light" />
+
+          {/* About the Host */}
+          <div className="property-section">
+            <h3>Meet your host</h3>
+            <Link to={`/host/${property.owner_id}`} className="host-profile-card">
+              <div className="host-card-left">
+                <div className="host-avatar-xl">
+                  {property.owner_name?.charAt(0).toUpperCase()}
+                </div>
+                <div className="host-card-info">
+                  <h4>{property.owner_name}</h4>
+                  <p className="host-joined">Joined in 2022</p>
+                </div>
+              </div>
+              <div className="host-card-stats">
+                <p><strong>124</strong> Reviews</p>
+                <p><span className="star-icon">⭐</span> <strong>4.8</strong> Rating</p>
+                <p><strong>3</strong> Years hosting</p>
+              </div>
+            </Link>
+            <div className="host-description">
+              <p>During your stay</p>
+              <p className="host-bio">
+                {property.owner_name} is a Superhost. Superhosts are experienced, highly rated hosts who are committed to providing great stays for guests.
+              </p>
+              <p className="host-contact">Contact: {property.owner_email}</p>
+              <button className="contact-host-btn">Message host</button>
+            </div>
+          </div>
+
+          <hr className="divider-light" />
+
+          {/* Things to Know */}
+          <div className="property-section">
+            <h3>Things to know</h3>
+            <div className="things-to-know-grid">
+              <div className="know-section">
+                <h4>House rules</h4>
+                <ul className="know-list">
+                  <li>Check-in: 3:00 PM - 10:00 PM</li>
+                  <li>Checkout before 11:00 AM</li>
+                  <li>Maximum {property.max_guests} guests</li>
+                  <li>No pets allowed</li>
+                  <li>No smoking</li>
+                </ul>
+                <button className="show-more-btn">Show more</button>
+              </div>
+              <div className="know-section">
+                <h4>Safety & property</h4>
+                <ul className="know-list">
+                  <li>Smoke alarm installed</li>
+                  <li>Carbon monoxide alarm</li>
+                  <li>Fire extinguisher</li>
+                  <li>First aid kit</li>
+                  <li>Pool/hot tub without a gate or lock</li>
+                </ul>
+                <button className="show-more-btn">Show more</button>
+              </div>
+              <div className="know-section">
+                <h4>Cancellation policy</h4>
+                <ul className="know-list">
+                  <li>Free cancellation for 48 hours</li>
+                  <li>Cancel before check-in for a partial refund</li>
+                  <li>Review the full cancellation policy</li>
+                </ul>
+                <button className="show-more-btn">Show more</button>
+              </div>
+            </div>
           </div>
         </div>
 

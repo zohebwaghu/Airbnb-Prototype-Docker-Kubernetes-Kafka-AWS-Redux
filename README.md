@@ -5,6 +5,7 @@ A complete Airbnb clone built with React, Node.js, MySQL, and Python FastAPI fea
 ## 🚀 Features
 
 ### Traveler Features
+
 - ✅ User registration and authentication
 - ✅ Profile management with photo upload
 - ✅ Property search with filters (location, dates, guests, price)

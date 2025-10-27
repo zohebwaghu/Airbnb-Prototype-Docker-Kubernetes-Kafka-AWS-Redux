@@ -1,277 +1,250 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import './AIAgent.css';
 
 const AIAgent = ({ onClose }) => {
   const { user, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState('plan');
+  const [messages, setMessages] = useState([]);
+  const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [travelPlan, setTravelPlan] = useState(null);
   const [error, setError] = useState('');
+  const [currentTravelPlan, setCurrentTravelPlan] = useState(null);
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
+  const [userBookings, setUserBookings] = useState([]);
 
-  // Form state for travel plan generation
-  const [formData, setFormData] = useState({
-    location: '',
-    start_date: '',
-    end_date: '',
-    party_type: 'solo',
-    budget: 'moderate',
-    interests: [],
-    mobility_needs: '',
-    dietary_filters: []
-  });
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  // Fetch user's bookings for context
+  useEffect(() => {
+    const fetchBookings = async () => {
+      if (!isAuthenticated) return;
+      try {
+        const response = await axios.get('/users/bookings');
+        setUserBookings(response.data.bookings || []);
+      } catch (err) {
+        console.error('Error fetching bookings:', err);
+      }
+    };
+    fetchBookings();
+  }, [isAuthenticated]);
 
-  const handleArrayInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value.split(',').map(item => item.trim()).filter(item => item)
-    }));
-  };
+  // Extract booking context from most recent booking
+  const getBookingContext = useCallback(() => {
+    if (userBookings.length > 0) {
+      // Prefer upcoming bookings (status: accepted or pending)
+      // Filter to show only future bookings
+      const today = new Date().toISOString().split('T')[0];
+      const upcomingBookings = userBookings.filter(booking => 
+        booking.check_in_date >= today && 
+        (booking.status === 'accepted' || booking.status === 'pending')
+      );
+      
+      const selectedBooking = upcomingBookings.length > 0 
+        ? upcomingBookings[0] 
+        : userBookings[0];
+      
+      if (selectedBooking && selectedBooking.property_location) {
+        return {
+          location: selectedBooking.property_location,
+          start_date: selectedBooking.check_in_date,
+          end_date: selectedBooking.check_out_date,
+          party_type: `${selectedBooking.number_of_guests} ${selectedBooking.number_of_guests === 1 ? 'guest' : 'guests'}`,
+          budget: 'moderate',
+          interests: [],
+          mobility_needs: null,
+          dietary_filters: []
+        };
+      }
+    }
+    return null;
+  }, [userBookings]);
 
-  const generateTravelPlan = async (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
+    if (!inputMessage.trim() || loading) return;
+    
     if (!isAuthenticated) {
       setError('Please log in to use the AI concierge');
       return;
     }
-    setLoading(true);
+
+    const userMsg = inputMessage.trim();
+    setInputMessage('');
     setError('');
 
+    // Add user message to chat
+    const newUserMessage = { role: 'user', content: userMsg };
+    setMessages(prev => [...prev, newUserMessage]);
+    setLoading(true);
+
     try {
-      const response = await axios.post('/agent/travel-plan', {
-        booking_context: {
-          location: formData.location,
-          start_date: formData.start_date,
-          end_date: formData.end_date,
-          party_type: formData.party_type
-        },
-        preferences: {
-          budget: formData.budget,
-          interests: formData.interests,
-          mobility_needs: formData.mobility_needs || undefined,
-          dietary_filters: formData.dietary_filters
-        }
+      const bookingContext = getBookingContext();
+      const conversationHistory = messages.map(m => ({ role: m.role, content: m.content }));
+
+      const response = await axios.post('/agent/chat', {
+        user_message: userMsg,
+        booking_context: bookingContext,
+        conversation_history: conversationHistory
       });
 
-      setTravelPlan(response.data);
-      setActiveTab('results');
+      // Add assistant response
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: response.data.assistant_message 
+      }]);
+
+      // If travel plan was generated, store it
+      if (response.data.travel_plan) {
+        setCurrentTravelPlan(response.data.travel_plan);
+      }
     } catch (err) {
-      setError(err.response?.data?.error || (err.response?.status === 401 ? 'Please log in to use the AI concierge' : 'Failed to generate travel plan'));
+      setError(err.response?.data?.error || 'Failed to send message');
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'Sorry, I encountered an error. Please try again.' 
+      }]);
     } finally {
       setLoading(false);
     }
   };
 
+  // Welcome message on load
+  useEffect(() => {
+    if (messages.length === 0 && isAuthenticated && userBookings.length >= 0) {
+      const bookingContext = getBookingContext();
+      let welcomeMessage;
+      
+      if (bookingContext) {
+        const checkInDate = new Date(bookingContext.start_date).toLocaleDateString('en-US', { 
+          month: 'long', 
+          day: 'numeric' 
+        });
+        welcomeMessage = `Hello! I'm your AI travel concierge. 👋\n\nI can see you have an upcoming trip to ${bookingContext.location} starting ${checkInDate}. I can help you:\n\n• Find restaurants and local cuisine\n• Discover activities and attractions\n• Create a personalized travel plan\n• Get a packing checklist\n• Find local events and weather info\n\nWhat would you like help with?`;
+      } else {
+        welcomeMessage = `Hello! I'm your AI travel concierge. 👋\n\nI can help you plan amazing trips! I can assist with:\n\n• Restaurant recommendations\n• Activity and attraction suggestions\n• Creating personalized travel plans\n• Packing checklists\n• Local events and weather\n\nWhat would you like help with today?`;
+      }
+      
+      setMessages([{ role: 'assistant', content: welcomeMessage }]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, userBookings.length, getBookingContext]);
+
   return (
     <div className="ai-agent-overlay">
       <div className="ai-agent-container">
         <div className="ai-agent-header">
-          <h2>🤖 AI Travel Concierge</h2>
+          <div className="header-content">
+            <div className="header-avatar">🤖</div>
+            <div>
+              <h2>AI Travel Concierge</h2>
+              <p className="header-subtitle">Ask me anything about your trip</p>
+            </div>
+          </div>
           <button className="close-btn" onClick={onClose}>✕</button>
         </div>
 
-        <div className="ai-agent-tabs">
-          <button
-            className={`tab-btn ${activeTab === 'plan' ? 'active' : ''}`}
-            onClick={() => setActiveTab('plan')}
-          >
-            Plan Trip
-          </button>
-          <button
-            className={`tab-btn ${activeTab === 'results' ? 'active' : ''}`}
-            onClick={() => setActiveTab('results')}
-            disabled={!travelPlan}
-          >
-            Travel Plan
-          </button>
-        </div>
-
-        <div className="ai-agent-content">
-          {activeTab === 'plan' && (
-            <form onSubmit={generateTravelPlan} className="travel-plan-form">
-              <div className="form-section">
-                <h3>📍 Trip Details</h3>
-                <div className="form-group">
-                  <label>Destination</label>
-                  <input
-                    type="text"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Paris, France"
-                    required
-                  />
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Check-in Date</label>
-                    <input
-                      type="date"
-                      name="start_date"
-                      value={formData.start_date}
-                      onChange={handleInputChange}
-                      min={new Date().toISOString().split('T')[0]}
-                      max={formData.end_date || undefined}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Check-out Date</label>
-                    <input
-                      type="date"
-                      name="end_date"
-                      value={formData.end_date}
-                      onChange={handleInputChange}
-                      min={formData.start_date || new Date().toISOString().split('T')[0]}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label>Travel Party</label>
-                  <select
-                    name="party_type"
-                    value={formData.party_type}
-                    onChange={handleInputChange}
-                  >
-                    <option value="solo">Solo</option>
-                    <option value="couple">Couple</option>
-                    <option value="family">Family</option>
-                    <option value="friends">Friends</option>
-                    <option value="business">Business</option>
-                  </select>
-                </div>
+        {/* Chat Messages */}
+        <div className="chat-messages">
+          {messages.map((message, index) => (
+            <div key={index} className={`message ${message.role}`}>
+              {message.role === 'assistant' && (
+                <div className="message-avatar assistant">🤖</div>
+              )}
+              <div className="message-content">
+                <p>{message.content}</p>
               </div>
-
-              <div className="form-section">
-                <h3>💰 Preferences</h3>
-                <div className="form-group">
-                  <label>Budget Level</label>
-                  <select
-                    name="budget"
-                    value={formData.budget}
-                    onChange={handleInputChange}
-                  >
-                    <option value="budget">Budget</option>
-                    <option value="moderate">Moderate</option>
-                    <option value="luxury">Luxury</option>
-                  </select>
+              {message.role === 'user' && (
+                <div className="message-avatar user">{user?.name?.charAt(0) || 'U'}</div>
+              )}
+            </div>
+          ))}
+          {loading && (
+            <div className="message assistant">
+              <div className="message-avatar assistant">🤖</div>
+              <div className="message-content">
+                <div className="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
                 </div>
-
-                <div className="form-group">
-                  <label>Interests (comma-separated)</label>
-                  <input
-                    type="text"
-                    value={formData.interests.join(', ')}
-                    onChange={(e) => handleArrayInputChange('interests', e.target.value)}
-                    placeholder="e.g., museums, food, adventure, shopping"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Mobility Needs (optional)</label>
-                  <input
-                    type="text"
-                    name="mobility_needs"
-                    value={formData.mobility_needs}
-                    onChange={handleInputChange}
-                    placeholder="e.g., wheelchair accessible, no stairs"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Dietary Restrictions (comma-separated)</label>
-                  <input
-                    type="text"
-                    value={formData.dietary_filters.join(', ')}
-                    onChange={(e) => handleArrayInputChange('dietary_filters', e.target.value)}
-                    placeholder="e.g., vegetarian, vegan, gluten-free"
-                  />
-                </div>
-              </div>
-
-              {error && <div className="error-message">{error}</div>}
-
-              <button type="submit" className="generate-btn" disabled={loading}>
-                {loading ? 'Generating Plan...' : '🎯 Generate Travel Plan'}
-              </button>
-            </form>
-          )}
-
-          {activeTab === 'results' && travelPlan && (
-            <div className="travel-plan-results">
-              <div className="results-section">
-                <h3>📅 Day-by-Day Plan</h3>
-                {travelPlan.day_by_day_plan?.map((day, index) => (
-                  <div key={index} className="day-plan">
-                    <h4>{day.day}</h4>
-                    <p><strong>Morning:</strong> {day.morning}</p>
-                    <p><strong>Afternoon:</strong> {day.afternoon}</p>
-                    <p><strong>Evening:</strong> {day.evening}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="results-section">
-                <h3>🎯 Activity Recommendations</h3>
-                {travelPlan.activity_cards?.map((activity, index) => (
-                  <div key={index} className="activity-card">
-                    <h4>{activity.title}</h4>
-                    <p><strong>Address:</strong> {activity.address}</p>
-                    <p><strong>Duration:</strong> {activity.duration}</p>
-                    <p><strong>Price:</strong> {activity.price_tier}</p>
-                    <div className="activity-tags">
-                      {activity.tags.map((tag, i) => (
-                        <span key={i} className="tag">{tag}</span>
-                      ))}
-                    </div>
-                    <div className="activity-features">
-                      {activity.wheelchair_friendly && <span className="feature">♿ Wheelchair Friendly</span>}
-                      {activity.child_friendly && <span className="feature">👶 Child Friendly</span>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="results-section">
-                <h3>🍽️ Restaurant Recommendations</h3>
-                {travelPlan.restaurant_recommendations?.map((restaurant, index) => (
-                  <div key={index} className="restaurant-card">
-                    <h4>{restaurant.name}</h4>
-                    <p><strong>Cuisine:</strong> {restaurant.cuisine}</p>
-                    <p><strong>Address:</strong> {restaurant.address}</p>
-                    <p><strong>Price:</strong> {restaurant.price_tier}</p>
-                    <div className="dietary-options">
-                      {restaurant.dietary_options.map((option, i) => (
-                        <span key={i} className="dietary-tag">{option}</span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="results-section">
-                <h3>🎒 Packing Checklist</h3>
-                <ul className="packing-list">
-                  {travelPlan.packing_checklist?.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
               </div>
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
+
+        {/* Travel Plan Display */}
+        {currentTravelPlan && (
+          <div className="travel-plan-preview">
+            <h3>📅 Your Travel Plan</h3>
+            <div className="plan-summary">
+              <p><strong>Activities:</strong> {currentTravelPlan.activity_cards?.length || 0}</p>
+              <p><strong>Restaurants:</strong> {currentTravelPlan.restaurant_recommendations?.length || 0}</p>
+              <p><strong>Days:</strong> {currentTravelPlan.day_by_day_plan?.length || 0}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && <div className="error-message">{error}</div>}
+
+        {/* Chat Input */}
+        <form onSubmit={handleSendMessage} className="chat-input-form">
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            placeholder="Type your message here..."
+            className="chat-input"
+            disabled={loading || !isAuthenticated}
+          />
+          <button 
+            type="submit" 
+            className="send-btn"
+            disabled={loading || !inputMessage.trim() || !isAuthenticated}
+          >
+            {loading ? '⏳' : '📤'}
+          </button>
+        </form>
+
+        {/* Example Questions */}
+        {messages.length <= 1 && (
+          <div className="example-questions">
+            <h4>Try asking:</h4>
+            <div className="question-chips">
+              <button 
+                className="chip-btn" 
+                onClick={() => setInputMessage("What restaurants do you recommend?")}
+              >
+                What restaurants do you recommend?
+              </button>
+              <button 
+                className="chip-btn" 
+                onClick={() => setInputMessage("Create a travel plan for my trip")}
+              >
+                Create a travel plan
+              </button>
+              <button 
+                className="chip-btn" 
+                onClick={() => setInputMessage("What should I pack?")}
+              >
+                What should I pack?
+              </button>
+              <button 
+                className="chip-btn" 
+                onClick={() => setInputMessage("Are there any events happening?")}
+              >
+                Local events
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

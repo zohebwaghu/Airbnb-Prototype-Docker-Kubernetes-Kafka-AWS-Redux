@@ -85,7 +85,7 @@ const AddProperty = () => {
     );
   }
 
-  if (user.user_type !== 'owner') {
+  if (user?.userType !== 'owner') {
     return (
       <div className="add-property-container">
         <div className="error-message">Only property owners can add properties</div>

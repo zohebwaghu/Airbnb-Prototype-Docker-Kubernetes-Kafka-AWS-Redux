@@ -62,6 +62,7 @@ CREATE TABLE bookings (
     total_price DECIMAL(10, 2) NOT NULL,
     status ENUM('pending', 'accepted', 'cancelled', 'completed') DEFAULT 'pending',
     special_requests TEXT,
+    cancelled_by ENUM('traveler', 'owner') NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE,

@@ -245,10 +245,10 @@ const Properties = () => {
           </div>
         ) : (
           properties.map(property => (
-            <div key={property.id} className="property-card">
+            <Link key={property.id} to={`/property/${property.id}`} className="property-card">
               <div className="property-image">
                 {property.primary_image ? (
-                  <img src={property.primary_image.startsWith('/uploads') ? property.primary_image : `/uploads/${property.primary_image.replace(/^\/+/, '')}`} alt={property.name} />
+                  <img src={property.primary_image} alt={property.name} />
                 ) : (
                   <div className="no-image">No Image</div>
                 )}
@@ -261,20 +261,15 @@ const Properties = () => {
                 </div>
 
                 <div className="property-details">
-                  <p><strong>Type:</strong> {property.property_type}</p>
-                  <p><strong>Bedrooms:</strong> {property.bedrooms}</p>
-                  <p><strong>Bathrooms:</strong> {property.bathrooms}</p>
-                  <p><strong>Guests:</strong> {property.max_guests}</p>
-                  <p><strong>Price:</strong> ${property.base_price}/night</p>
+                  <span className="property-type">{property.property_type}</span>
+                  <span className="property-specs">{property.bedrooms} bed · {property.bathrooms} bath · {property.max_guests} guests</span>
                 </div>
 
-                <div className="property-actions">
-                  <Link to={`/property/${property.id}`} className="view-details-btn">
-                    View Details
-                  </Link>
+                <div className="property-price">
+                  <strong>${property.base_price}</strong> night
                 </div>
               </div>
-            </div>
+            </Link>
           ))
         )}
       </div>

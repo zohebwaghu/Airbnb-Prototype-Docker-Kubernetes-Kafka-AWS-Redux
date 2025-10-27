@@ -17,8 +17,7 @@ export const AuthProvider = ({ children }) => {
 
   // Configure axios defaults (only in browser environment)
   if (typeof window !== 'undefined') {
-    // Use environment variable or fallback to relative path for Docker deployment
-    axios.defaults.baseURL = process.env.REACT_APP_API_URL || '/api';
+    axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
     axios.defaults.withCredentials = true;
   }
 

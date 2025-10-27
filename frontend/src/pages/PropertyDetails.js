@@ -118,29 +118,60 @@ const PropertyDetails = () => {
 
   return (
     <div className="property-details-container">
+      <div className="property-title-section">
+        <h1>{property.name}</h1>
+        <p className="property-location-text">📍 {property.location}, {property.city}, {property.country}</p>
+      </div>
+
       <div className="property-gallery">
-        <div className="main-image">
-          {property.images && property.images.length > 0 ? (
-            <img src={property.images[0]} alt={property.name} />
-          ) : (
-            <div className="no-image">No Image Available</div>
-          )}
-        </div>
+        {property.images && property.images.length > 0 ? (
+          <>
+            <div className="gallery-main">
+              <img src={property.images[0]} alt={`${property.name} - Main`} />
+            </div>
+            <div className="gallery-grid">
+              {property.images.slice(1, 5).map((image, index) => (
+                <div key={index} className="gallery-item">
+                  <img src={image} alt={`${property.name} - ${index + 2}`} />
+                </div>
+              ))}
+              {property.images.length < 5 && Array.from({ length: 5 - property.images.length }).map((_, index) => (
+                <div key={`placeholder-${index}`} className="gallery-item placeholder">
+                  <div className="no-image-small">No Image</div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="no-gallery">No Images Available</div>
+        )}
       </div>
 
       <div className="property-content">
         <div className="property-header">
-          <div className="property-title">
-            <h1>{property.name}</h1>
-            <p className="property-location">{property.location}</p>
-            <p className="property-type">🏠 {property.property_type}</p>
+          <div className="property-basic-info">
+            <h2>{property.property_type} in {property.city}</h2>
+            <div className="property-stats">
+              <span>{property.max_guests} guests</span>
+              <span>·</span>
+              <span>{property.bedrooms} bedroom{property.bedrooms > 1 ? 's' : ''}</span>
+              <span>·</span>
+              <span>{property.bathrooms} bath{property.bathrooms > 1 ? 's' : ''}</span>
+            </div>
           </div>
 
           <div className="host-info">
-            <p><strong>Hosted by:</strong> {property.owner_name}</p>
-            <p><strong>Contact:</strong> {property.owner_email}</p>
+            <div className="host-avatar">
+              {property.owner_name?.charAt(0).toUpperCase()}
+            </div>
+            <div className="host-details">
+              <p><strong>Hosted by {property.owner_name}</strong></p>
+              <p className="host-contact">{property.owner_email}</p>
+            </div>
           </div>
         </div>
+
+        <hr className="section-divider" />
 
         <div className="property-details-grid">
           <div className="property-info">

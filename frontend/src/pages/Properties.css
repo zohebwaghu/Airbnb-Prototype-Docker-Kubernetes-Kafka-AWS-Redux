@@ -121,12 +121,19 @@
 }
 
 .property-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
   cursor: pointer;
   transition: transform 0.2s ease;
 }
 
 .property-card:hover {
   transform: scale(1.02);
+}
+
+.property-card:hover .property-header h3 {
+  text-decoration: underline;
 }
 
 .property-image {
@@ -187,41 +194,31 @@
 
 .property-details {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  flex-direction: column;
+  gap: 4px;
   margin: 8px 0;
   font-size: 0.875rem;
   color: var(--airbnb-grey);
 }
 
-.property-details p {
-  margin: 0;
+.property-type {
+  text-transform: capitalize;
+  color: var(--airbnb-grey);
 }
 
-.property-details strong {
-  font-weight: 600;
+.property-specs {
+  color: var(--airbnb-grey);
+}
+
+.property-price {
+  margin-top: 8px;
+  font-size: 0.9375rem;
   color: var(--airbnb-black);
 }
 
-.property-actions {
-  margin-top: 12px;
-}
-
-.view-details-btn {
-  display: inline-block;
-  padding: 10px 20px;
-  background: var(--airbnb-red);
-  color: white;
-  text-decoration: none;
-  border-radius: 8px;
-  font-size: 0.875rem;
+.property-price strong {
   font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.view-details-btn:hover {
-  background: var(--airbnb-red-dark);
-  transform: scale(1.04);
+  font-size: 1rem;
 }
 
 .no-properties {

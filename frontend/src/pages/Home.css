@@ -3,214 +3,219 @@
 }
 
 .hero {
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  position: relative;
+  background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+    url('https://images.unsplash.com/photo-1505873242700-f289a29e1e0f?w=1600') center/cover;
   color: white;
-  padding: 100px 20px;
+  padding: 120px 20px 100px;
   text-align: center;
 }
 
 .hero-content h1 {
-  font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 20px;
+  font-size: 3.5rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
 }
 
 .hero-content p {
-  font-size: 1.2rem;
-  margin-bottom: 40px;
-  opacity: 0.9;
+  font-size: 1.25rem;
+  margin-bottom: 48px;
+  font-weight: 300;
 }
 
 .hero-buttons {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .btn {
-  padding: 15px 30px;
-  font-size: 1.1rem;
+  padding: 14px 24px;
+  font-size: 1rem;
   font-weight: 600;
   text-decoration: none;
   border-radius: 8px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   display: inline-block;
+  cursor: pointer;
+  border: none;
 }
 
 .btn-primary {
-  background: white;
-  color: #e74c3c;
+  background: var(--airbnb-red);
+  color: white;
 }
 
 .btn-primary:hover {
-  background: #f8f9fa;
-  transform: translateY(-2px);
+  background: var(--airbnb-red-dark);
+  transform: scale(1.04);
 }
 
 .btn-secondary {
-  background: transparent;
-  color: white;
-  border: 2px solid white;
+  background: white;
+  color: var(--airbnb-black);
+  border: 1px solid var(--airbnb-border);
 }
 
 .btn-secondary:hover {
-  background: white;
-  color: #e74c3c;
+  background: var(--airbnb-light-grey);
+  border-color: var(--airbnb-black);
 }
 
 .features {
-  padding: 80px 20px;
-  background: #f8f9fa;
+  padding: 64px 24px;
+  background: white;
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
 }
 
 .features h2 {
   text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 60px;
-  color: #333;
+  font-size: 2rem;
+  margin-bottom: 48px;
+  color: var(--airbnb-black);
+  font-weight: 600;
 }
 
 .features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 40px;
+  gap: 32px;
 }
 
 .feature-card {
   background: white;
-  padding: 40px 30px;
+  padding: 32px 24px;
   border-radius: 12px;
   text-align: center;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  border: 1px solid var(--airbnb-border);
+  transition: all 0.2s ease;
 }
 
 .feature-card:hover {
-  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 .feature-icon {
-  font-size: 3rem;
-  margin-bottom: 20px;
+  font-size: 2.5rem;
+  margin-bottom: 16px;
 }
 
 .feature-card h3 {
-  font-size: 1.3rem;
-  margin-bottom: 15px;
-  color: #333;
+  font-size: 1.125rem;
+  margin-bottom: 8px;
+  color: var(--airbnb-black);
+  font-weight: 600;
 }
 
 .feature-card p {
-  color: #666;
-  line-height: 1.6;
+  color: var(--airbnb-grey);
+  line-height: 1.5;
+  font-size: 0.9375rem;
 }
 
 .dashboard {
-  padding: 80px 20px;
-  background: white;
+  padding: 64px 24px;
+  background: var(--airbnb-light-grey);
 }
 
 .dashboard h2 {
   text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 60px;
-  color: #333;
+  font-size: 2rem;
+  margin-bottom: 48px;
+  color: var(--airbnb-black);
+  font-weight: 600;
 }
 
 .dashboard-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
 }
 
 .dashboard-card {
-  background: #f8f9fa;
-  padding: 30px 20px;
-  border-radius: 8px;
+  background: white;
+  padding: 32px 24px;
+  border-radius: 12px;
   text-align: center;
   text-decoration: none;
-  color: #333;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
+  color: var(--airbnb-black);
+  transition: all 0.2s ease;
+  border: 1px solid var(--airbnb-border);
 }
 
 .dashboard-card:hover {
-  background: #e74c3c;
-  color: white;
-  transform: translateY(-3px);
-  border-color: #c0392b;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  border-color: var(--airbnb-black);
 }
 
 .card-icon {
   font-size: 2.5rem;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
 }
 
 .dashboard-card h3 {
-  font-size: 1.2rem;
-  margin-bottom: 10px;
+  font-size: 1.125rem;
+  margin-bottom: 8px;
+  font-weight: 600;
 }
 
 .dashboard-card p {
-  font-size: 0.9rem;
-  opacity: 0.8;
+  font-size: 0.875rem;
+  color: var(--airbnb-grey);
 }
 
 .cta {
-  background: #333;
+  background: var(--airbnb-black);
   color: white;
-  padding: 80px 20px;
+  padding: 80px 24px;
   text-align: center;
 }
 
 .cta h2 {
-  font-size: 2.2rem;
-  margin-bottom: 30px;
+  font-size: 2rem;
+  margin-bottom: 32px;
+  font-weight: 600;
 }
 
 .cta-buttons {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .cta p {
-  font-size: 1.1rem;
+  font-size: 1.0625rem;
   opacity: 0.9;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .hero {
-    padding: 60px 20px;
+    padding: 80px 20px 60px;
   }
 
   .hero-content h1 {
-    font-size: 2rem;
+    font-size: 2.25rem;
   }
 
-  .hero-buttons {
-    flex-direction: column;
-    align-items: center;
+  .hero-content p {
+    font-size: 1.0625rem;
   }
 
-  .features {
-    padding: 60px 20px;
+  .features, .dashboard {
+    padding: 48px 20px;
   }
 
-  .features h2 {
-    font-size: 2rem;
-  }
-
-  .dashboard {
-    padding: 60px 20px;
+  .features h2, .dashboard h2 {
+    font-size: 1.5rem;
   }
 
   .cta {
@@ -218,6 +223,6 @@
   }
 
   .cta h2 {
-    font-size: 1.8rem;
+    font-size: 1.75rem;
   }
 }

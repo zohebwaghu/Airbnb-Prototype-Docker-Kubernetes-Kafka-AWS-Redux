@@ -151,60 +151,59 @@ const Bookings = () => {
         ) : (
           filteredBookings.map(booking => (
             <div key={booking.id} className="booking-card">
-              <div className="booking-header">
-                <div className="booking-property">
-                  <h3>{booking.property_name}</h3>
-                  <p className="booking-location">{booking.property_location}</p>
-                  <p className="booking-dates">
-                    {formatDate(booking.check_in_date)} - {formatDate(booking.check_out_date)}
-                  </p>
-                </div>
+              <div className="booking-content">
+                {booking.property_image && (
+                  <div className="booking-image-container">
+                    <img 
+                      src={booking.property_image} 
+                      alt={booking.property_name} 
+                      className="booking-image"
+                    />
+                  </div>
+                )}
+                <div className="booking-details-wrapper">
+                  <div className="booking-header">
+                    <div className="booking-property">
+                      <h3>{booking.property_name}</h3>
+                      <p className="booking-location">{booking.property_location}</p>
+                      <p className="booking-dates">
+                        {formatDate(booking.check_in_date)} - {formatDate(booking.check_out_date)}
+                      </p>
+                    </div>
 
-                <div className="booking-status">
-                  {getStatusBadge(booking.status)}
-                </div>
-              </div>
+                    <div className="booking-status">
+                      {getStatusBadge(booking.status)}
+                    </div>
+                  </div>
 
-              <div className="booking-details">
-                <div className="booking-info">
-                  <p><strong>Guests:</strong> {booking.number_of_guests}</p>
-                  <p><strong>Total Price:</strong> ${booking.total_price}</p>
-                  {booking.special_requests && (
-                    <p><strong>Special Requests:</strong> {booking.special_requests}</p>
-                  )}
-                </div>
+                  <div className="booking-details">
+                    <div className="booking-info">
+                      <p><strong>Guests:</strong> {booking.number_of_guests}</p>
+                      <p><strong>Total Price:</strong> ${booking.total_price}</p>
+                      {booking.special_requests && (
+                        <p><strong>Special Requests:</strong> {booking.special_requests}</p>
+                      )}
+                    </div>
 
-                <div className="booking-actions">
-                  {booking.status === 'pending' && user?.userType === 'owner' && (
-                    <>
-                      <button
-                        className="accept-btn"
-                        onClick={() => handleAcceptBooking(booking.id)}
-                      >
-                        Accept Booking
-                      </button>
-                      <button
-                        className="cancel-btn"
-                        onClick={() => handleCancelBooking(booking.id)}
-                      >
-                        Decline Booking
-                      </button>
-                    </>
-                  )}
+                    <div className="booking-actions">
+                      {booking.status === 'pending' && user?.userType === 'owner' && (
+                        <>
+                          <button
+                            className="accept-btn"
+                            onClick={() => handleAcceptBooking(booking.id)}
+                          >
+                            Accept Booking
+                          </button>
+                          <button
+                            className="cancel-btn"
+                            onClick={() => handleCancelBooking(booking.id)}
+                          >
+                            Decline Booking
+                          </button>
+                        </>
+                      )}
 
-                  {booking.status === 'pending' && user?.userType === 'traveler' && (
-                    <button
-                      className="cancel-btn"
-                      onClick={() => handleCancelBooking(booking.id)}
-                    >
-                      Cancel Booking
-                    </button>
-                  )}
-
-                  {booking.status === 'accepted' && (
-                    <div className="accepted-message">
-                      <p>✅ This booking has been accepted!</p>
-                      {user?.userType === 'owner' && (
+                      {booking.status === 'pending' && user?.userType === 'traveler' && (
                         <button
                           className="cancel-btn"
                           onClick={() => handleCancelBooking(booking.id)}
@@ -212,26 +211,40 @@ const Bookings = () => {
                           Cancel Booking
                         </button>
                       )}
-                    </div>
-                  )}
 
-                  {booking.status === 'cancelled' && (
-                    <div className="cancelled-message">
-                      <p>❌ This booking has been cancelled</p>
-                      {booking.cancelled_by && (
-                        <p className="cancelled-by">
-                          Cancelled by: {booking.cancelled_by}
-                        </p>
+                      {booking.status === 'accepted' && (
+                        <div className="accepted-message">
+                          <p>✅ This booking has been accepted!</p>
+                          {user?.userType === 'owner' && (
+                            <button
+                              className="cancel-btn"
+                              onClick={() => handleCancelBooking(booking.id)}
+                            >
+                              Cancel Booking
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+                      {booking.status === 'cancelled' && (
+                        <div className="cancelled-message">
+                          <p>❌ This booking has been cancelled</p>
+                          {booking.cancelled_by && (
+                            <p className="cancelled-by">
+                              Cancelled by: {booking.cancelled_by}
+                            </p>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
-              </div>
+                  </div>
 
-              <div className="booking-footer">
-                <p className="booking-date">
-                  Booked on: {formatDate(booking.created_at)}
-                </p>
+                  <div className="booking-footer">
+                    <p className="booking-date">
+                      Booked on: {formatDate(booking.created_at)}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           ))

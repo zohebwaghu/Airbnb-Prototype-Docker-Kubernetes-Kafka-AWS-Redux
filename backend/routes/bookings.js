@@ -21,13 +21,58 @@ const updateBookingStatusSchema = Joi.object({
 // Create a new booking (travelers only)
 router.post('/', requireTraveler, async (req, res) => {
   try {
-    const { error, value } = createBookingSchema.validate(req.body);
+    console.log('Received booking request:', req.body);
+    console.log('User session:', { userId: req.session.userId, userType: req.session.userType });
+    
+    // Convert ISO date strings to YYYY-MM-DD format for MySQL
+    const normalizedBody = { ...req.body };
+    try {
+      if (normalizedBody.check_in_date) {
+        const checkIn = new Date(normalizedBody.check_in_date);
+        if (isNaN(checkIn.getTime())) {
+          return res.status(400).json({ error: 'Invalid check-in date' });
+        }
+        normalizedBody.check_in_date = checkIn.toISOString().split('T')[0];
+      }
+      if (normalizedBody.check_out_date) {
+        const checkOut = new Date(normalizedBody.check_out_date);
+        if (isNaN(checkOut.getTime())) {
+          return res.status(400).json({ error: 'Invalid check-out date' });
+        }
+        normalizedBody.check_out_date = checkOut.toISOString().split('T')[0];
+      }
+    } catch (dateError) {
+      console.error('Date parsing error:', dateError);
+      return res.status(400).json({ error: 'Invalid date format' });
+    }
+    
+    console.log('Normalized body:', normalizedBody);
+
+    const { error, value } = createBookingSchema.validate(normalizedBody);
     if (error) {
+      console.error('Validation error:', error.details);
       return res.status(400).json({ error: error.details[0].message });
     }
+    
+    console.log('Validated data:', value);
 
     const { property_id, check_in_date, check_out_date, number_of_guests, special_requests } = value;
     const traveler_id = req.session.userId;
+    
+    // Validate traveler_id exists
+    if (!traveler_id) {
+      console.error('traveler_id is missing from session');
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+    
+    console.log('Creating booking with data:', {
+      property_id,
+      traveler_id,
+      check_in_date,
+      check_out_date,
+      number_of_guests,
+      special_requests
+    });
 
     // Check if property exists and is available
     const [properties] = await pool.execute(
@@ -62,14 +107,41 @@ router.post('/', requireTraveler, async (req, res) => {
 
     // Calculate total price
     const nights = Math.ceil((new Date(check_out_date) - new Date(check_in_date)) / (1000 * 60 * 60 * 24));
-    const total_price = (property.base_price * nights) + property.cleaning_fee + property.service_fee;
+    const basePrice = parseFloat(property.base_price) || 0;
+    const cleaningFee = parseFloat(property.cleaning_fee) || 0;
+    const serviceFee = parseFloat(property.service_fee) || 0;
+    const total_price = (basePrice * nights) + cleaningFee + serviceFee;
 
-    // Create booking
+    // Create booking - ensure all values are properly typed and not NaN
+    const propId = parseInt(property_id);
+    const travId = parseInt(traveler_id);
+    const numGuests = parseInt(number_of_guests);
+    const totPrice = parseFloat(total_price);
+    
+    // Validate numeric fields are not NaN
+    if (isNaN(propId) || isNaN(travId) || isNaN(numGuests) || isNaN(totPrice)) {
+      console.error('Invalid numeric values:', { propId, travId, numGuests, totPrice });
+      return res.status(400).json({ error: 'Invalid booking data' });
+    }
+    
+    const bookingParams = [
+      propId,
+      travId,
+      check_in_date,
+      check_out_date,
+      numGuests,
+      totPrice,
+      special_requests || null
+    ];
+    
+    console.log('Booking params before insert:', bookingParams);
+    console.log('Booking params types:', bookingParams.map(p => [typeof p, p]));
+    
     const [result] = await pool.execute(
       `INSERT INTO bookings (property_id, traveler_id, check_in_date, check_out_date,
                            number_of_guests, total_price, special_requests)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [property_id, traveler_id, check_in_date, check_out_date, number_of_guests, total_price, special_requests || null]
+      bookingParams
     );
 
     res.status(201).json({
@@ -80,7 +152,8 @@ router.post('/', requireTraveler, async (req, res) => {
 
   } catch (error) {
     console.error('Create booking error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ error: error.message || 'Internal server error' });
   }
 });
 
@@ -95,10 +168,12 @@ router.get('/', requireAuth, async (req, res) => {
     if (userType === 'traveler') {
       query = `
         SELECT b.*, p.name as property_name, p.location as property_location,
-               p.city, p.country, u.name as owner_name, b.cancelled_by
+               p.city, p.country, u.name as owner_name, b.cancelled_by,
+               pi.image_url as property_image
         FROM bookings b
         JOIN properties p ON b.property_id = p.id
         JOIN users u ON p.owner_id = u.id
+        LEFT JOIN property_images pi ON p.id = pi.property_id AND pi.is_primary = TRUE
         WHERE b.traveler_id = ?
         ORDER BY b.created_at DESC
       `;
@@ -106,10 +181,12 @@ router.get('/', requireAuth, async (req, res) => {
     } else {
       query = `
         SELECT b.*, p.name as property_name, p.location as property_location,
-               p.city, p.country, u.name as traveler_name, b.cancelled_by
+               p.city, p.country, u.name as traveler_name, b.cancelled_by,
+               pi.image_url as property_image
         FROM bookings b
         JOIN properties p ON b.property_id = p.id
         JOIN users u ON b.traveler_id = u.id
+        LEFT JOIN property_images pi ON p.id = pi.property_id AND pi.is_primary = TRUE
         WHERE p.owner_id = ?
         ORDER BY b.created_at DESC
       `;
@@ -137,20 +214,24 @@ router.get('/:id', requireAuth, async (req, res) => {
     if (userType === 'traveler') {
       query = `
         SELECT b.*, p.name as property_name, p.location as property_location,
-               p.city, p.country, u.name as owner_name, u.email as owner_email
+               p.city, p.country, u.name as owner_name, u.email as owner_email,
+               pi.image_url as property_image
         FROM bookings b
         JOIN properties p ON b.property_id = p.id
         JOIN users u ON p.owner_id = u.id
+        LEFT JOIN property_images pi ON p.id = pi.property_id AND pi.is_primary = TRUE
         WHERE b.id = ? AND b.traveler_id = ?
       `;
       values = [bookingId, userId];
     } else {
       query = `
         SELECT b.*, p.name as property_name, p.location as property_location,
-               p.city, p.country, u.name as traveler_name, u.email as traveler_email
+               p.city, p.country, u.name as traveler_name, u.email as traveler_email,
+               pi.image_url as property_image
         FROM bookings b
         JOIN properties p ON b.property_id = p.id
         JOIN users u ON b.traveler_id = u.id
+        LEFT JOIN property_images pi ON p.id = pi.property_id AND pi.is_primary = TRUE
         WHERE b.id = ? AND p.owner_id = ?
       `;
       values = [bookingId, userId];

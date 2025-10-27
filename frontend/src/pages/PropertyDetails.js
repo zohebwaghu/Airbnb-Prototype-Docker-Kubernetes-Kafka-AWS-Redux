@@ -152,7 +152,7 @@ const PropertyDetails = () => {
         property_id: parseInt(id),
         check_in_date: bookingForm.check_in_date,
         check_out_date: bookingForm.check_out_date,
-        number_of_guests: bookingForm.number_of_guests
+        number_of_guests: parseInt(bookingForm.number_of_guests)
       };
       
       // Only include special_requests if it's not empty
@@ -163,6 +163,15 @@ const PropertyDetails = () => {
       await axios.post('/bookings', bookingData);
 
       setBookingMessage('Booking request submitted successfully!');
+      
+      // Reset form
+      setBookingForm({
+        check_in_date: '',
+        check_out_date: '',
+        number_of_guests: 1,
+        special_requests: ''
+      });
+      
       setTimeout(() => setBookingMessage(''), 3000);
     } catch (error) {
       setBookingMessage(error.response?.data?.error || 'Failed to submit booking');

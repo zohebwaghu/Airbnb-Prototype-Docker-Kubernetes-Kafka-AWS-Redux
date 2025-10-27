@@ -2,6 +2,8 @@
 
 ## Quick Start
 
+### Setup Instructions
+
 ### 1. Prerequisites
 - Docker Desktop installed and running
 - Git installed

@@ -36,7 +36,7 @@ services:
       DB_USER: airbnb_user
       DB_PASSWORD: airbnb_password
       SESSION_SECRET: your-super-secret-session-key-change-this-in-production
-      FRONTEND_URL: http://localhost:3000
+      FRONTEND_URL: http://localhost:3001
       AI_AGENT_URL: http://ai-agent:8000
       SESSION_COOKIE_SECURE: "false"
       SESSION_SAMESITE: "lax"

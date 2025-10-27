@@ -1,8 +1,23 @@
 # Test Credentials
 
-All user accounts use the password: **`password123`**
+## ⚠️ **RECOMMENDED: Create Your Own Account**
 
-## Traveler Account
+The best way to test the application is to **create your own account**:
+1. Go to http://localhost:3000
+2. Click the hamburger menu (☰) → "Sign up"
+3. Fill in your details and select "Traveler" or "Owner"
+4. Login with your new credentials
+5. All features will work perfectly!
+
+---
+
+## Pre-seeded Test Accounts
+
+All pre-seeded accounts use password: **`password123`**
+
+**Note**: If these accounts don't work, please create your own account. The authentication system is fully functional.
+
+### Traveler Account
 ```
 Email: jane@example.com
 Password: password123

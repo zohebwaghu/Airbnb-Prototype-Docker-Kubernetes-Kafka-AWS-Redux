@@ -122,6 +122,7 @@ const startServer = async () => {
     app.listen(PORT, () => {
       console.log(`🚀 Airbnb Backend API is running on port ${PORT}`);
       console.log(`📊 Health check available at http://localhost:${PORT}/api/health`);
+      // Server successfully started and listening for connections
     });
   } catch (error) {
     console.error('Failed to start server:', error);

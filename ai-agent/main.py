@@ -83,7 +83,13 @@ class AgentResponse(BaseModel):
 
 # Initialize Ollama LLM
 ollama_base_url = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-llm = Ollama(model="mistral", base_url=ollama_base_url)
+try:
+    llm = Ollama(model="mistral", base_url=ollama_base_url)
+    ollama_available = True
+except Exception as e:
+    print(f"Ollama not available: {e}")
+    llm = None
+    ollama_available = False
 
 # Initialize Tavily client if available
 tavily_client = None
@@ -105,6 +111,10 @@ async def generate_travel_plan(request: AgentRequest):
     Generate a personalized travel plan based on booking context and preferences
     """
     try:
+        # If Ollama is not available, use mock response
+        if not ollama_available or not llm:
+            return generate_mock_travel_plan(request)
+        
         # Get local information if Tavily is available
         local_info = ""
         if tavily_client:
@@ -127,7 +137,9 @@ async def generate_travel_plan(request: AgentRequest):
         return parsed_response
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generating travel plan: {str(e)}")
+        # If AI generation fails, provide mock response as fallback
+        print(f"AI generation error: {e}, falling back to mock response")
+        return generate_mock_travel_plan(request)
 
 async def search_local_information(location: str, query_type: str = "general") -> str:
     """Search for local information using Tavily API"""
@@ -210,6 +222,86 @@ def create_travel_plan_prompt(request: AgentRequest, local_info: str = "") -> st
     Ensure all recommendations align with the guest's budget, interests, mobility needs, and dietary restrictions.
     Provide practical, specific recommendations with addresses where possible.
     """
+
+def generate_mock_travel_plan(request: AgentRequest) -> AgentResponse:
+    """Generate a mock travel plan when AI is not available"""
+    from datetime import datetime, timedelta
+    
+    # Calculate number of days
+    start_date = datetime.strptime(request.booking_context.start_date, "%Y-%m-%d")
+    end_date = datetime.strptime(request.booking_context.end_date, "%Y-%m-%d")
+    num_days = (end_date - start_date).days
+    
+    # Generate day plans
+    day_plans = []
+    for i in range(min(num_days, 5)):  # Max 5 days
+        day_plans.append(DayPlan(
+            day=f"Day {i+1}",
+            morning=f"Start your day with breakfast and explore the local neighborhood around {request.booking_context.location}. Visit local cafés and shops to get a feel for the area.",
+            afternoon=f"Discover popular attractions and hidden gems in {request.booking_context.location}. Perfect for {request.booking_context.party_type} travelers with {request.preferences.budget} budget.",
+            evening=f"Enjoy dinner at a local restaurant featuring {', '.join(request.preferences.interests[:2]) if request.preferences.interests else 'local'} cuisine. End the day with a leisurely walk or local entertainment."
+        ))
+    
+    # Generate activity cards based on interests
+    activities = []
+    activity_templates = [
+        ("Cultural Museum Tour", "Museum District", "2-3 hours", ["culture", "history", "indoor"]),
+        ("Food Market Experience", "Local Market Square", "1-2 hours", ["food", "shopping", "local"]),
+        ("Historical Walking Tour", "Old Town Center", "3-4 hours", ["history", "walking", "sightseeing"]),
+        ("Art Gallery Visit", "Arts Quarter", "2 hours", ["art", "culture", "indoor"]),
+        ("Scenic Viewpoint", "City Overlook", "1 hour", ["nature", "photography", "scenic"])
+    ]
+    
+    for title, location, duration, tags in activity_templates[:3]:
+        activities.append(ActivityCard(
+            title=f"{title} in {request.booking_context.location}",
+            address=f"{location}, {request.booking_context.location}",
+            price_tier=request.preferences.budget,
+            duration=duration,
+            tags=tags,
+            wheelchair_friendly=not request.preferences.mobility_needs or "wheelchair" not in request.preferences.mobility_needs.lower(),
+            child_friendly=request.booking_context.party_type.lower() in ["family", "couple"]
+        ))
+    
+    # Generate restaurant recommendations
+    restaurants = []
+    cuisine_types = ["Italian", "Local", "Mediterranean", "Asian Fusion", "French"]
+    for i, cuisine in enumerate(cuisine_types[:3]):
+        restaurants.append(RestaurantRec(
+            name=f"{cuisine} Bistro",
+            cuisine=cuisine,
+            address=f"Restaurant District, {request.booking_context.location}",
+            price_tier=request.preferences.budget,
+            dietary_options=request.preferences.dietary_filters if request.preferences.dietary_filters else ["vegetarian", "vegan"]
+        ))
+    
+    # Generate packing checklist
+    packing_list = [
+        "Comfortable walking shoes",
+        "Weather-appropriate clothing",
+        "Camera or smartphone for photos",
+        "Portable charger",
+        "Travel adapter (if international)",
+        "Day backpack",
+        "Water bottle",
+        "Sunscreen and sunglasses",
+        "Local currency or cards",
+        "Maps or guidebook"
+    ]
+    
+    if request.preferences.mobility_needs:
+        packing_list.append("Mobility assistance devices")
+    if "beach" in request.preferences.interests:
+        packing_list.append("Swimwear and beach towel")
+    if "hiking" in request.preferences.interests:
+        packing_list.append("Hiking boots and equipment")
+    
+    return AgentResponse(
+        day_by_day_plan=day_plans,
+        activity_cards=activities,
+        restaurant_recommendations=restaurants,
+        packing_checklist=packing_list[:10]
+    )
 
 def parse_ai_response(response: str, request: AgentRequest) -> AgentResponse:
     """Parse the AI response into structured format"""

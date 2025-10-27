@@ -9,11 +9,9 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  // Return DECIMAL and BIGINT as numbers so frontend math works as expected
   decimalNumbers: true
 });
 
-// Test database connection
 const testConnection = async () => {
   try {
     const connection = await pool.getConnection();
@@ -26,19 +24,16 @@ const testConnection = async () => {
   }
 };
 
-// Initialize database tables
 const initializeDatabase = async () => {
   try {
     console.log('Initializing database tables...');
 
-    // Read and execute schema file
     const fs = require('fs').promises;
     const path = require('path');
 
     const schemaPath = path.join(__dirname, '..', 'database', 'schema.sql');
     const schema = await fs.readFile(schemaPath, 'utf8');
 
-    // Split by semicolon to execute each statement separately
     const statements = schema.split(';').filter(stmt => stmt.trim().length > 0);
 
     for (const statement of statements) {
@@ -46,7 +41,6 @@ const initializeDatabase = async () => {
         try {
           await pool.execute(statement);
         } catch (error) {
-          // If table already exists, continue (this is expected in development)
           if (error.code !== 'ER_TABLE_EXISTS_ERROR') {
             throw error;
           }

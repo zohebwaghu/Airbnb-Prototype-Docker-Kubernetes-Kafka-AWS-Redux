@@ -1,12 +1,8 @@
--- Airbnb Database Schema
--- Drop tables if they exist (for clean setup)
 DROP TABLE IF EXISTS bookings;
 DROP TABLE IF EXISTS favorites;
 DROP TABLE IF EXISTS property_images;
 DROP TABLE IF EXISTS properties;
 DROP TABLE IF EXISTS users;
-
--- Users table (for both travelers and owners)
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -20,12 +16,10 @@ CREATE TABLE users (
     country VARCHAR(100),
     languages VARCHAR(255),
     gender ENUM('male', 'female', 'other'),
-    location VARCHAR(255), -- For owners, their property location
+    location VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-
--- Properties table
 CREATE TABLE properties (
     id INT AUTO_INCREMENT PRIMARY KEY,
     owner_id INT NOT NULL,
@@ -43,14 +37,12 @@ CREATE TABLE properties (
     base_price DECIMAL(10, 2) NOT NULL,
     cleaning_fee DECIMAL(10, 2) DEFAULT 0,
     service_fee DECIMAL(10, 2) DEFAULT 0,
-    amenities JSON, -- Store as JSON array of amenities
+    amenities JSON,
     is_available BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
 );
-
--- Property images table
 CREATE TABLE property_images (
     id INT AUTO_INCREMENT PRIMARY KEY,
     property_id INT NOT NULL,
@@ -59,8 +51,6 @@ CREATE TABLE property_images (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE
 );
-
--- Bookings table
 CREATE TABLE bookings (
     id INT AUTO_INCREMENT PRIMARY KEY,
     property_id INT NOT NULL,
@@ -76,8 +66,6 @@ CREATE TABLE bookings (
     FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE,
     FOREIGN KEY (traveler_id) REFERENCES users(id) ON DELETE CASCADE
 );
-
--- Favorites table (for travelers to save favorite properties)
 CREATE TABLE favorites (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -87,8 +75,6 @@ CREATE TABLE favorites (
     FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE,
     UNIQUE KEY unique_favorite (user_id, property_id)
 );
-
--- Create indexes for better performance
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_user_type ON users(user_type);
 CREATE INDEX idx_properties_owner_id ON properties(owner_id);

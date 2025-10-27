@@ -5,7 +5,6 @@ const { pool } = require('../database');
 
 const router = express.Router();
 
-// Validation schemas
 const signupSchema = Joi.object({
   name: Joi.string().min(2).max(255).required(),
   email: Joi.string().email().required(),
@@ -14,7 +13,7 @@ const signupSchema = Joi.object({
   phone: Joi.string().optional(),
   city: Joi.string().optional(),
   country: Joi.string().optional(),
-  location: Joi.string().optional() // For owners
+  location: Joi.string().optional()
 });
 
 const loginSchema = Joi.object({
@@ -22,7 +21,6 @@ const loginSchema = Joi.object({
   password: Joi.string().required()
 });
 
-// Signup route
 router.post('/signup', async (req, res) => {
   try {
     const { error, value } = signupSchema.validate(req.body);
@@ -32,7 +30,6 @@ router.post('/signup', async (req, res) => {
 
     const { name, email, password, userType, phone, city, country, location } = value;
 
-    // Check if user already exists
     const [existingUsers] = await pool.execute(
       'SELECT id FROM users WHERE email = ?',
       [email]
@@ -42,18 +39,15 @@ router.post('/signup', async (req, res) => {
       return res.status(409).json({ error: 'Email already registered' });
     }
 
-    // Hash password
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Insert new user
     const [result] = await pool.execute(
       `INSERT INTO users (name, email, password_hash, user_type, phone, city, country, location)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [name, email, passwordHash, userType, phone || null, city || null, country || null, location || null]
     );
 
-    // Set session
     req.session.userId = result.insertId;
     req.session.userType = userType;
     req.session.userEmail = email;
@@ -74,7 +68,6 @@ router.post('/signup', async (req, res) => {
   }
 });
 
-// Login route
 router.post('/login', async (req, res) => {
   try {
     const { error, value } = loginSchema.validate(req.body);
@@ -84,7 +77,6 @@ router.post('/login', async (req, res) => {
 
     const { email, password } = value;
 
-    // Find user
     const [users] = await pool.execute(
       'SELECT id, name, email, password_hash, user_type FROM users WHERE email = ?',
       [email]
@@ -96,13 +88,11 @@ router.post('/login', async (req, res) => {
 
     const user = users[0];
 
-    // Check password
     const isValidPassword = await bcrypt.compare(password, user.password_hash);
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Set session
     req.session.userId = user.id;
     req.session.userType = user.user_type;
     req.session.userEmail = user.email;
@@ -123,7 +113,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Logout route
 router.post('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
@@ -133,7 +122,6 @@ router.post('/logout', (req, res) => {
   });
 });
 
-// Check authentication status
 router.get('/me', (req, res) => {
   if (req.session.userId) {
     res.json({

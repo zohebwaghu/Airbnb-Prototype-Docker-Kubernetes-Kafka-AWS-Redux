@@ -95,7 +95,7 @@ router.get('/', requireAuth, async (req, res) => {
     if (userType === 'traveler') {
       query = `
         SELECT b.*, p.name as property_name, p.location as property_location,
-               p.city, p.country, u.name as owner_name
+               p.city, p.country, u.name as owner_name, b.cancelled_by
         FROM bookings b
         JOIN properties p ON b.property_id = p.id
         JOIN users u ON p.owner_id = u.id
@@ -106,7 +106,7 @@ router.get('/', requireAuth, async (req, res) => {
     } else {
       query = `
         SELECT b.*, p.name as property_name, p.location as property_location,
-               p.city, p.country, u.name as traveler_name
+               p.city, p.country, u.name as traveler_name, b.cancelled_by
         FROM bookings b
         JOIN properties p ON b.property_id = p.id
         JOIN users u ON b.traveler_id = u.id
@@ -249,10 +249,10 @@ router.post('/:id/cancel', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Can only cancel pending or accepted bookings' });
     }
 
-    // Update booking status to cancelled
+    // Update booking status to cancelled and record who cancelled
     await pool.execute(
-      'UPDATE bookings SET status = "cancelled", updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      [bookingId]
+      'UPDATE bookings SET status = "cancelled", cancelled_by = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [userType, bookingId]
     );
 
     res.json({ message: 'Booking cancelled successfully' });

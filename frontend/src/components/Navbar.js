@@ -92,16 +92,16 @@ const Navbar = ({ onAIAgentToggle }) => {
                           </Link>
                         </>
                       )}
-                      {isOwner && (
-                        <>
-                          <Link to="/owner/dashboard" className="dropdown-item" onClick={() => setShowDropdown(false)}>
-                            Dashboard
-                          </Link>
-                          <Link to="/bookings" className="dropdown-item" onClick={() => setShowDropdown(false)}>
-                            Bookings
-                          </Link>
-                        </>
-                      )}
+                              {isOwner && (
+                                <>
+                                  <Link to="/owner/dashboard" className="dropdown-item" onClick={() => setShowDropdown(false)}>
+                                    My Properties
+                                  </Link>
+                                  <Link to="/bookings" className="dropdown-item" onClick={() => setShowDropdown(false)}>
+                                    Booking Requests
+                                  </Link>
+                                </>
+                              )}
                       <div className="dropdown-divider"></div>
                       <Link to="/profile" className="dropdown-item" onClick={() => setShowDropdown(false)}>
                         Account Settings

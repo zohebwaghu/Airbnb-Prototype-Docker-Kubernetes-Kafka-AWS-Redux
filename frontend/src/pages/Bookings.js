@@ -44,6 +44,21 @@ const Bookings = () => {
     }
   };
 
+  const handleAcceptBooking = async (bookingId) => {
+    if (!window.confirm('Are you sure you want to accept this booking?')) {
+      return;
+    }
+
+    try {
+      await axios.put(`/bookings/${bookingId}/status`, { status: 'accepted' });
+      // Refresh bookings
+      fetchBookings();
+    } catch (error) {
+      setError('Failed to accept booking');
+      console.error('Error accepting booking:', error);
+    }
+  };
+
   const filteredBookings = bookings.filter(booking => {
     if (filter === 'all') return true;
     return booking.status === filter;
@@ -160,7 +175,24 @@ const Bookings = () => {
                 </div>
 
                 <div className="booking-actions">
-                  {booking.status === 'pending' && (
+                  {booking.status === 'pending' && user?.userType === 'owner' && (
+                    <>
+                      <button
+                        className="accept-btn"
+                        onClick={() => handleAcceptBooking(booking.id)}
+                      >
+                        Accept Booking
+                      </button>
+                      <button
+                        className="cancel-btn"
+                        onClick={() => handleCancelBooking(booking.id)}
+                      >
+                        Decline Booking
+                      </button>
+                    </>
+                  )}
+
+                  {booking.status === 'pending' && user?.userType === 'traveler' && (
                     <button
                       className="cancel-btn"
                       onClick={() => handleCancelBooking(booking.id)}
@@ -171,14 +203,26 @@ const Bookings = () => {
 
                   {booking.status === 'accepted' && (
                     <div className="accepted-message">
-                      <p>✅ Your booking has been accepted!</p>
-                      <p>Contact the host for check-in details</p>
+                      <p>✅ This booking has been accepted!</p>
+                      {user?.userType === 'owner' && (
+                        <button
+                          className="cancel-btn"
+                          onClick={() => handleCancelBooking(booking.id)}
+                        >
+                          Cancel Booking
+                        </button>
+                      )}
                     </div>
                   )}
 
                   {booking.status === 'cancelled' && (
                     <div className="cancelled-message">
                       <p>❌ This booking has been cancelled</p>
+                      {booking.cancelled_by && (
+                        <p className="cancelled-by">
+                          Cancelled by: {booking.cancelled_by}
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>

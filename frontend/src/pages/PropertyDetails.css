@@ -5,7 +5,14 @@
 }
 
 .property-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 24px;
+}
+
+.header-left {
+  flex: 1;
 }
 
 .property-details-header h1 {
@@ -20,6 +27,37 @@
   align-items: center;
   gap: 8px;
   font-size: 0.875rem;
+}
+
+.favorite-btn {
+  padding: 10px 20px;
+  background-color: white;
+  border: 1px solid var(--airbnb-grey);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.favorite-btn:hover {
+  background-color: var(--airbnb-light-grey);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.favorite-btn.active {
+  background-color: #FFE7E7;
+  border-color: var(--airbnb-red);
+  color: var(--airbnb-red);
+}
+
+.favorite-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .location-link {

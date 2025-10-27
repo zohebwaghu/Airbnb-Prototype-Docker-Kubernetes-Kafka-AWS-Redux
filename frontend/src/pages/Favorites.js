@@ -11,10 +11,12 @@ const Favorites = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (isAuthenticated && user.user_type === 'traveler') {
+    if (isAuthenticated && isTraveler) {
       fetchFavorites();
+    } else if (isAuthenticated && !isTraveler) {
+      setLoading(false);
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, isTraveler]);
 
   const fetchFavorites = async () => {
     try {
@@ -91,7 +93,7 @@ const Favorites = () => {
             <div key={property.id} className="favorite-card">
               <div className="favorite-image">
                 {property.primary_image ? (
-                  <img src={property.primary_image.startsWith('/uploads') ? property.primary_image : `/uploads/${property.primary_image.replace(/^\/+/, '')}`} alt={property.name} />
+                  <img src={property.primary_image} alt={property.name} />
                 ) : (
                   <div className="no-image">No Image</div>
                 )}

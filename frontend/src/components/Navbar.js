@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
@@ -7,12 +7,30 @@ const Navbar = ({ onAIAgentToggle }) => {
   const { user, logout, isAuthenticated, isTraveler, isOwner } = useAuth();
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   const handleLogout = async () => {
     await logout();
     navigate('/');
     setShowDropdown(false);
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDropdown]);
 
   return (
     <>
@@ -36,35 +54,61 @@ const Navbar = ({ onAIAgentToggle }) => {
               </Link>
             )}
 
-            <div className="navbar-profile" onClick={() => setShowDropdown(!showDropdown)}>
-              <span className="menu-icon">☰</span>
-              <div className="profile-icon">
-                {user ? user.name?.charAt(0).toUpperCase() : '👤'}
-              </div>
+            <div className="navbar-profile" ref={dropdownRef}>
+              <button 
+                type="button"
+                className="profile-btn" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('CLICKED HAMBURGER!!!');
+                  setShowDropdown(prev => {
+                    console.log('Toggling dropdown from', prev, 'to', !prev);
+                    return !prev;
+                  });
+                }}
+                style={{
+                  cursor: 'pointer',
+                  zIndex: 1000
+                }}
+              >
+                <span className="menu-icon" style={{ pointerEvents: 'none' }}>☰</span>
+                <div className="profile-icon" style={{ pointerEvents: 'none' }}>
+                  {user ? user.name?.charAt(0).toUpperCase() : '👤'}
+                </div>
+              </button>
 
               {showDropdown && (
                 <div className="dropdown-menu">
                   {isAuthenticated ? (
                     <>
-                      <Link to="/profile" className="dropdown-item" onClick={() => setShowDropdown(false)}>
-                        Profile
-                      </Link>
-                      <Link to="/bookings" className="dropdown-item" onClick={() => setShowDropdown(false)}>
-                        My Bookings
-                      </Link>
                       {isTraveler && (
-                        <Link to="/favorites" className="dropdown-item" onClick={() => setShowDropdown(false)}>
-                          Favorites
-                        </Link>
+                        <>
+                          <Link to="/favorites" className="dropdown-item" onClick={() => setShowDropdown(false)}>
+                            Favorites
+                          </Link>
+                          <Link to="/bookings" className="dropdown-item" onClick={() => setShowDropdown(false)}>
+                            Trips
+                          </Link>
+                        </>
                       )}
                       {isOwner && (
-                        <Link to="/owner/dashboard" className="dropdown-item" onClick={() => setShowDropdown(false)}>
-                          Dashboard
-                        </Link>
+                        <>
+                          <Link to="/owner/dashboard" className="dropdown-item" onClick={() => setShowDropdown(false)}>
+                            Dashboard
+                          </Link>
+                          <Link to="/bookings" className="dropdown-item" onClick={() => setShowDropdown(false)}>
+                            Bookings
+                          </Link>
+                        </>
                       )}
                       <div className="dropdown-divider"></div>
+                      <Link to="/profile" className="dropdown-item" onClick={() => setShowDropdown(false)}>
+                        Account Settings
+                      </Link>
+                      <div className="dropdown-divider"></div>
                       <button className="dropdown-item" onClick={handleLogout}>
-                        Logout
+                        Log out
                       </button>
                     </>
                   ) : (
@@ -84,7 +128,7 @@ const Navbar = ({ onAIAgentToggle }) => {
         </div>
       </nav>
 
-      {isAuthenticated && (
+      {isAuthenticated && isTraveler && (
         <button className="ai-agent-btn" onClick={onAIAgentToggle} title="AI Travel Assistant">
           🤖
         </button>

@@ -69,7 +69,7 @@ router.post('/', requireTraveler, async (req, res) => {
       `INSERT INTO bookings (property_id, traveler_id, check_in_date, check_out_date,
                            number_of_guests, total_price, special_requests)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [property_id, traveler_id, check_in_date, check_out_date, number_of_guests, total_price, special_requests]
+      [property_id, traveler_id, check_in_date, check_out_date, number_of_guests, total_price, special_requests || null]
     );
 
     res.status(201).json({

@@ -13,7 +13,10 @@ const signupSchema = Joi.object({
   phone: Joi.string().optional(),
   city: Joi.string().optional(),
   country: Joi.string().optional(),
-  location: Joi.string().optional()
+  location: Joi.string().optional(),
+  gender: Joi.string().valid('male', 'female', 'other').optional(),
+  languages: Joi.string().optional(),
+  about_me: Joi.string().optional()
 });
 
 const loginSchema = Joi.object({
@@ -28,7 +31,7 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ error: error.details[0].message });
     }
 
-    const { name, email, password, userType, phone, city, country, location } = value;
+    const { name, email, password, userType, phone, city, country, location, gender, languages, about_me } = value;
 
     const [existingUsers] = await pool.execute(
       'SELECT id FROM users WHERE email = ?',
@@ -43,9 +46,9 @@ router.post('/signup', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
     const [result] = await pool.execute(
-      `INSERT INTO users (name, email, password_hash, user_type, phone, city, country, location)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [name, email, passwordHash, userType, phone || null, city || null, country || null, location || null]
+      `INSERT INTO users (name, email, password_hash, user_type, phone, city, country, location, gender, languages, about_me)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [name, email, passwordHash, userType, phone || null, city || null, country || null, location || null, gender || null, languages || null, about_me || null]
     );
 
     req.session.userId = result.insertId;

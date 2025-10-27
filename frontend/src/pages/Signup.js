@@ -13,7 +13,10 @@ const Signup = () => {
     phone: '',
     city: '',
     country: '',
-    location: ''
+    location: '',
+    gender: '',
+    languages: '',
+    about_me: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -47,7 +50,10 @@ const Signup = () => {
       phone: formData.phone || undefined,
       city: formData.city || undefined,
       country: formData.country || undefined,
-      location: formData.location || undefined
+      location: formData.location || undefined,
+      gender: formData.gender || undefined,
+      languages: formData.languages || undefined,
+      about_me: formData.about_me || undefined
     };
 
     const result = await signup(signupData);
@@ -162,29 +168,84 @@ const Signup = () => {
             </div>
             <div className="form-group">
               <label htmlFor="country">Country (Optional)</label>
-              <input
-                type="text"
+              <select
                 id="country"
                 name="country"
                 value={formData.country}
                 onChange={handleChange}
-                placeholder="Enter your country"
+              >
+                <option value="">Select a country</option>
+                <option value="United States">United States</option>
+                <option value="Canada">Canada</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="France">France</option>
+                <option value="Germany">Germany</option>
+                <option value="Italy">Italy</option>
+                <option value="Spain">Spain</option>
+                <option value="Japan">Japan</option>
+                <option value="Australia">Australia</option>
+                <option value="Brazil">Brazil</option>
+                <option value="Mexico">Mexico</option>
+                <option value="India">India</option>
+                <option value="Poland">Poland</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="gender">Gender (Optional)</label>
+              <select
+                id="gender"
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+              >
+                <option value="">Prefer not to say</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="languages">Languages (Optional)</label>
+              <input
+                type="text"
+                id="languages"
+                name="languages"
+                value={formData.languages}
+                onChange={handleChange}
+                placeholder="e.g., English, Spanish"
               />
             </div>
           </div>
 
           {formData.userType === 'owner' && (
-            <div className="form-group">
-              <label htmlFor="location">Property Location (Optional)</label>
-              <input
-                type="text"
-                id="location"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                placeholder="Enter your property location"
-              />
-            </div>
+            <>
+              <div className="form-group">
+                <label htmlFor="location">Property Location (Optional)</label>
+                <input
+                  type="text"
+                  id="location"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  placeholder="Enter your property location"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="about_me">About You (Optional)</label>
+                <textarea
+                  id="about_me"
+                  name="about_me"
+                  value={formData.about_me}
+                  onChange={handleChange}
+                  placeholder="Tell guests about yourself and why you love hosting..."
+                  rows="4"
+                />
+              </div>
+            </>
           )}
 
           {error && <div className="error-message">{error}</div>}

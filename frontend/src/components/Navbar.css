@@ -1,7 +1,7 @@
 .navbar {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 90;
   background: white;
   border-bottom: 1px solid var(--airbnb-border);
   padding: 16px 24px;
@@ -92,19 +92,36 @@
 }
 
 .navbar-profile {
+  position: relative;
+  z-index: 10001 !important;
+}
+
+.profile-btn {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 5px 5px 5px 12px;
   border: 1px solid var(--airbnb-border);
   border-radius: 21px;
-  cursor: pointer;
+  cursor: pointer !important;
   transition: box-shadow 0.2s ease;
+  background: white;
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
+  pointer-events: auto !important;
   position: relative;
+  z-index: 10000 !important;
 }
 
-.navbar-profile:hover {
+.profile-btn:hover {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+  background: #f7f7f7;
+}
+
+.profile-btn:active {
+  transform: scale(0.98);
+  background: #efefef;
 }
 
 .profile-icon {
@@ -118,18 +135,24 @@
   justify-content: center;
   font-size: 0.875rem;
   font-weight: 600;
+  pointer-events: none;
+  user-select: none;
 }
 
 .dropdown-menu {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  background: white;
+  background: white !important;
   border: 1px solid var(--airbnb-border);
   border-radius: 12px;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
-  min-width: 200px;
-  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25) !important;
+  min-width: 240px;
+  overflow: visible;
+  z-index: 9999 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .dropdown-item {
@@ -160,6 +183,8 @@
   width: 16px;
   height: 16px;
   color: var(--airbnb-grey);
+  pointer-events: none;
+  user-select: none;
 }
 
 .ai-agent-btn {

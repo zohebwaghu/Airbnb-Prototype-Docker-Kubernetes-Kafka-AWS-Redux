@@ -120,6 +120,8 @@ const AIAgent = ({ onClose }) => {
                       name="start_date"
                       value={formData.start_date}
                       onChange={handleInputChange}
+                      min={new Date().toISOString().split('T')[0]}
+                      max={formData.end_date || undefined}
                       required
                     />
                   </div>
@@ -130,6 +132,7 @@ const AIAgent = ({ onClose }) => {
                       name="end_date"
                       value={formData.end_date}
                       onChange={handleInputChange}
+                      min={formData.start_date || new Date().toISOString().split('T')[0]}
                       required
                     />
                   </div>

@@ -253,4 +253,27 @@ router.delete('/favorites/:propertyId', requireAuth, async (req, res) => {
   }
 });
 
+// Get user by ID (public profile - for host profiles)
+router.get('/:id', async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+
+    const [users] = await pool.execute(
+      `SELECT id, name, email, phone, city, country, location, user_type, created_at
+       FROM users WHERE id = ?`,
+      [userId]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ user: users[0] });
+
+  } catch (error) {
+    console.error('Get user error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;

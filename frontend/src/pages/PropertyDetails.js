@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import PhotoGalleryModal from '../components/PhotoGalleryModal';
+import ImageLightbox from '../components/ImageLightbox';
 import './PropertyDetails.css';
 
 const PropertyDetails = () => {
@@ -23,11 +24,21 @@ const PropertyDetails = () => {
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingMessage, setBookingMessage] = useState('');
   const [showGallery, setShowGallery] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
+  const [showLightbox, setShowLightbox] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
     fetchProperty();
     window.scrollTo(0, 0);
   }, [id]);
+
+  useEffect(() => {
+    if (property && isAuthenticated && isTraveler) {
+      checkFavoriteStatus();
+    }
+  }, [property, isAuthenticated, isTraveler, id]);
 
   const fetchProperty = async () => {
     try {
@@ -42,6 +53,16 @@ const PropertyDetails = () => {
       console.error('Error fetching property:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkFavoriteStatus = async () => {
+    try {
+      const favResponse = await axios.get('/users/favorites');
+      const favorites = favResponse.data.favorites || [];
+      setIsFavorite(favorites.some(fav => fav.id === parseInt(id)));
+    } catch (error) {
+      console.error('Error checking favorites:', error);
     }
   };
 
@@ -62,6 +83,56 @@ const PropertyDetails = () => {
     }));
   };
 
+  const toggleFavorite = async () => {
+    if (!isAuthenticated) {
+      // Store property ID to save after login
+      localStorage.setItem('pendingFavorite', id);
+      navigate('/login', { state: { from: `/property/${id}` } });
+      return;
+    }
+
+    if (!isTraveler) {
+      return;
+    }
+
+    try {
+      setFavoriteLoading(true);
+      if (isFavorite) {
+        // Remove from favorites
+        await axios.delete(`/users/favorites/${id}`);
+        setIsFavorite(false);
+      } else {
+        // Add to favorites
+        await axios.post(`/users/favorites/${id}`);
+        setIsFavorite(true);
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
+
+  // Check for pending favorite after login
+  useEffect(() => {
+    const checkPendingFavorite = async () => {
+      const pendingFavorite = localStorage.getItem('pendingFavorite');
+      if (pendingFavorite && isAuthenticated && isTraveler && pendingFavorite === id) {
+        localStorage.removeItem('pendingFavorite');
+        try {
+          await axios.post(`/users/favorites/${id}`);
+          setIsFavorite(true);
+        } catch (error) {
+          console.error('Error saving pending favorite:', error);
+        }
+      }
+    };
+    
+    if (isAuthenticated) {
+      checkPendingFavorite();
+    }
+  }, [isAuthenticated, isTraveler, id]);
+
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
 
@@ -77,10 +148,19 @@ const PropertyDetails = () => {
 
     try {
       setBookingLoading(true);
-      await axios.post('/bookings', {
+      const bookingData = {
         property_id: parseInt(id),
-        ...bookingForm
-      });
+        check_in_date: bookingForm.check_in_date,
+        check_out_date: bookingForm.check_out_date,
+        number_of_guests: bookingForm.number_of_guests
+      };
+      
+      // Only include special_requests if it's not empty
+      if (bookingForm.special_requests && bookingForm.special_requests.trim()) {
+        bookingData.special_requests = bookingForm.special_requests;
+      }
+      
+      await axios.post('/bookings', bookingData);
 
       setBookingMessage('Booking request submitted successfully!');
       setTimeout(() => setBookingMessage(''), 3000);
@@ -135,22 +215,39 @@ const PropertyDetails = () => {
     <div className="property-details-wrapper">
       {/* Title Section */}
       <div className="property-details-header">
-        <h1>{property.name}</h1>
-        <div className="header-info">
-          <span className="location-link">📍 {property.city}, {property.country}</span>
+        <div className="header-left">
+          <h1>{property.name}</h1>
+          <div className="header-info">
+            <span className="location-link">📍 {property.city}, {property.country}</span>
+          </div>
         </div>
+        {(!isAuthenticated || isTraveler) && (
+          <button 
+            className={`favorite-btn ${isFavorite ? 'active' : ''}`}
+            onClick={toggleFavorite}
+            disabled={favoriteLoading}
+          >
+            {isFavorite ? '❤️ Saved' : '🤍 Save'}
+          </button>
+        )}
       </div>
 
       {/* Photo Gallery */}
       <div className="property-gallery-airbnb">
         {property.images && property.images.length > 0 ? (
           <>
-            <div className="gallery-main-large" onClick={() => setShowGallery(true)}>
+            <div className="gallery-main-large" onClick={() => {
+              setLightboxIndex(0);
+              setShowLightbox(true);
+            }}>
               <img src={property.images[0].image_url} alt={property.name} />
             </div>
             <div className="gallery-grid-small">
               {property.images.slice(1, 5).map((image, index) => (
-                <div key={index} className="gallery-item-small" onClick={() => setShowGallery(true)}>
+                <div key={index} className="gallery-item-small" onClick={() => {
+                  setLightboxIndex(index + 1);
+                  setShowLightbox(true);
+                }}>
                   <img src={image.image_url} alt={`${property.name} - ${image.category}`} />
                 </div>
               ))}
@@ -274,7 +371,6 @@ const PropertyDetails = () => {
                 </p>
               </div>
             </div>
-            <button className="show-all-reviews-btn">Show all 127 reviews</button>
           </div>
 
           <hr className="divider-light" />
@@ -323,7 +419,6 @@ const PropertyDetails = () => {
                   <li>No pets allowed</li>
                   <li>No smoking</li>
                 </ul>
-                <button className="show-more-btn">Show more</button>
               </div>
               <div className="know-section">
                 <h4>Safety & property</h4>
@@ -334,7 +429,6 @@ const PropertyDetails = () => {
                   <li>First aid kit</li>
                   <li>Pool/hot tub without a gate or lock</li>
                 </ul>
-                <button className="show-more-btn">Show more</button>
               </div>
               <div className="know-section">
                 <h4>Cancellation policy</h4>
@@ -343,7 +437,6 @@ const PropertyDetails = () => {
                   <li>Cancel before check-in for a partial refund</li>
                   <li>Review the full cancellation policy</li>
                 </ul>
-                <button className="show-more-btn">Show more</button>
               </div>
             </div>
           </div>
@@ -368,6 +461,8 @@ const PropertyDetails = () => {
                     name="check_in_date"
                     value={bookingForm.check_in_date}
                     onChange={handleBookingInputChange}
+                    min={new Date().toISOString().split('T')[0]}
+                    max={bookingForm.check_out_date || undefined}
                     required
                   />
                 </div>
@@ -378,6 +473,7 @@ const PropertyDetails = () => {
                     name="check_out_date"
                     value={bookingForm.check_out_date}
                     onChange={handleBookingInputChange}
+                    min={bookingForm.check_in_date || new Date().toISOString().split('T')[0]}
                     required
                   />
                 </div>
@@ -458,6 +554,15 @@ const PropertyDetails = () => {
             ))}
           </div>
         </div>
+      )}
+
+      {/* Image Lightbox */}
+      {showLightbox && property.images && (
+        <ImageLightbox
+          images={property.images}
+          initialIndex={lightboxIndex}
+          onClose={() => setShowLightbox(false)}
+        />
       )}
     </div>
   );

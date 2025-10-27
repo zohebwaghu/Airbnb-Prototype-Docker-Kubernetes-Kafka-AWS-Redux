@@ -93,19 +93,6 @@ const Home = () => {
         </section>
       )}
 
-      <section className="cta">
-        <div className="container">
-          <h2>Ready to start your journey?</h2>
-          {!isAuthenticated ? (
-            <div className="cta-buttons">
-              <Link to="/signup" className="btn btn-primary">Join Now</Link>
-              <Link to="/properties" className="btn btn-secondary">Explore Properties</Link>
-            </div>
-          ) : (
-            <p>You're all set! Start exploring our features above.</p>
-          )}
-        </div>
-      </section>
     </div>
   );
 };

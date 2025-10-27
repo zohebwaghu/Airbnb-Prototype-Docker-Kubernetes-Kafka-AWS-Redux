@@ -32,7 +32,9 @@ const searchSchema = Joi.object({
   min_price: Joi.number().min(0).optional(),
   max_price: Joi.number().min(0).optional(),
   bedrooms: Joi.number().integer().min(1).optional(),
-  property_type: Joi.string().valid('apartment', 'house', 'condo', 'townhouse', 'other').optional()
+  property_type: Joi.string().valid('apartment', 'house', 'condo', 'townhouse', 'other').optional(),
+  owner_id: Joi.number().integer().optional(),
+  limit: Joi.number().integer().min(1).max(100).optional()
 });
 
 // Get all properties with search and filters
@@ -56,8 +58,8 @@ router.get('/', async (req, res) => {
 
     // Add search filters
     if (value.location) {
-      query += ' AND p.location LIKE ?';
-      values.push(`%${value.location}%`);
+      query += ' AND (p.location LIKE ? OR p.city LIKE ? OR p.country LIKE ?)';
+      values.push(`%${value.location}%`, `%${value.location}%`, `%${value.location}%`);
     }
 
     if (value.city) {
@@ -90,7 +92,17 @@ router.get('/', async (req, res) => {
       values.push(value.property_type);
     }
 
+    if (value.owner_id) {
+      query += ' AND p.owner_id = ?';
+      values.push(value.owner_id);
+    }
+
     query += ' ORDER BY p.created_at DESC';
+
+    if (value.limit) {
+      query += ' LIMIT ?';
+      values.push(value.limit);
+    }
 
     const [properties] = await pool.execute(query, values);
     res.json({ properties });

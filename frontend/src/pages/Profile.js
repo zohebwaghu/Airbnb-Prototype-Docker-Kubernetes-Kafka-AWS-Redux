@@ -156,14 +156,34 @@ const Profile = () => {
 
               <div className="form-group">
                 <label htmlFor="country">Country</label>
-                <input
-                  type="text"
+                <select
                   id="country"
                   name="country"
                   value={formData.country}
                   onChange={handleChange}
-                  placeholder="Enter your country"
-                />
+                >
+                  <option value="">Select country</option>
+                  <option value="USA">United States</option>
+                  <option value="Canada">Canada</option>
+                  <option value="UK">United Kingdom</option>
+                  <option value="France">France</option>
+                  <option value="Germany">Germany</option>
+                  <option value="Italy">Italy</option>
+                  <option value="Spain">Spain</option>
+                  <option value="Japan">Japan</option>
+                  <option value="China">China</option>
+                  <option value="Brazil">Brazil</option>
+                  <option value="Mexico">Mexico</option>
+                  <option value="Australia">Australia</option>
+                  <option value="India">India</option>
+                  <option value="Poland">Poland</option>
+                  <option value="Netherlands">Netherlands</option>
+                  <option value="Switzerland">Switzerland</option>
+                  <option value="Sweden">Sweden</option>
+                  <option value="Norway">Norway</option>
+                  <option value="Denmark">Denmark</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
             </div>
 

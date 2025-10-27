@@ -92,19 +92,19 @@ CREATE INDEX idx_favorites_property_id ON favorites(property_id);
 
 -- Insert sample data for testing
 INSERT INTO users (name, email, password_hash, user_type, city, country, location) VALUES
-('John Smith', 'john@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'owner', 'New York', 'USA', 'Manhattan, New York'),
-('Sarah Johnson', 'sarah@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'owner', 'Los Angeles', 'USA', 'Santa Monica, CA'),
-('Michael Chen', 'michael@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'owner', 'San Francisco', 'USA', 'Mission District, SF'),
-('Emily Davis', 'emily@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'owner', 'Miami', 'USA', 'South Beach, Miami'),
-('Jane Smith', 'jane@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'traveler', 'Seattle', 'USA', NULL),
-('Pierre Dubois', 'pierre@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'owner', 'Paris', 'France', 'Montmartre, Paris'),
-('Isabella Romano', 'isabella@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'owner', 'Rome', 'Italy', 'Trastevere, Rome'),
-('Hiroshi Tanaka', 'hiroshi@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'owner', 'Tokyo', 'Japan', 'Shibuya, Tokyo'),
-('Maria Garcia', 'maria@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'owner', 'Barcelona', 'Spain', 'Gothic Quarter, Barcelona'),
-('Oliver Williams', 'oliver@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'owner', 'London', 'UK', 'Notting Hill, London'),
-('Ana Silva', 'ana@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'owner', 'Rio de Janeiro', 'Brazil', 'Ipanema, Rio'),
-('David Kowalski', 'david@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'owner', 'Warsaw', 'Poland', 'Old Town, Warsaw'),
-('Sophie Martin', 'sophie@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'owner', 'Montreal', 'Canada', 'Plateau, Montreal');
+('John Smith', 'john@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'owner', 'New York', 'USA', 'Manhattan, New York'),
+('Sarah Johnson', 'sarah@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'owner', 'Los Angeles', 'USA', 'Santa Monica, CA'),
+('Michael Chen', 'michael@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'owner', 'San Francisco', 'USA', 'Mission District, SF'),
+('Emily Davis', 'emily@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'owner', 'Miami', 'USA', 'South Beach, Miami'),
+('Jane Smith', 'jane@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'traveler', 'Seattle', 'USA', NULL),
+('Pierre Dubois', 'pierre@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'owner', 'Paris', 'France', 'Montmartre, Paris'),
+('Isabella Romano', 'isabella@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'owner', 'Rome', 'Italy', 'Trastevere, Rome'),
+('Hiroshi Tanaka', 'hiroshi@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'owner', 'Tokyo', 'Japan', 'Shibuya, Tokyo'),
+('Maria Garcia', 'maria@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'owner', 'Barcelona', 'Spain', 'Gothic Quarter, Barcelona'),
+('Oliver Williams', 'oliver@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'owner', 'London', 'UK', 'Notting Hill, London'),
+('Ana Silva', 'ana@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'owner', 'Rio de Janeiro', 'Brazil', 'Ipanema, Rio'),
+('David Kowalski', 'david@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'owner', 'Warsaw', 'Poland', 'Old Town, Warsaw'),
+('Sophie Martin', 'sophie@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'owner', 'Montreal', 'Canada', 'Plateau, Montreal');
 
 INSERT INTO properties (owner_id, name, description, property_type, location, city, country, bedrooms, bathrooms, max_guests, base_price, cleaning_fee, service_fee, amenities) VALUES
 (1, 'Luxury Manhattan Penthouse', 'Stunning penthouse with panoramic city views, modern amenities, and rooftop access. Perfect for business travelers and tourists.', 'apartment', '123 Fifth Avenue, Manhattan', 'New York', 'USA', 3, 2.5, 6, 450.00, 75.00, 45.00, '["WiFi", "Kitchen", "Air Conditioning", "Heating", "City View", "Rooftop Access", "Washer", "Dryer", "Smart TV", "Workspace"]'),

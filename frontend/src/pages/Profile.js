@@ -46,7 +46,15 @@ const Profile = () => {
     setMessage('');
 
     try {
-      const result = await updateProfile(formData);
+      // Filter out empty strings and only send fields that have values
+      const cleanedData = {};
+      Object.keys(formData).forEach(key => {
+        if (formData[key] !== '' && formData[key] !== null && formData[key] !== undefined) {
+          cleanedData[key] = formData[key];
+        }
+      });
+      
+      const result = await updateProfile(cleanedData);
       if (result.success) {
         setMessage('Profile updated successfully!');
       } else {

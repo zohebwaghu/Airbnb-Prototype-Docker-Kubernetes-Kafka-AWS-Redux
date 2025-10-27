@@ -7,14 +7,14 @@ const router = express.Router();
 
 // Validation schemas
 const updateProfileSchema = Joi.object({
-  name: Joi.string().min(2).max(255).optional(),
-  phone: Joi.string().optional(),
-  about_me: Joi.string().optional(),
-  city: Joi.string().optional(),
-  country: Joi.string().optional(),
-  languages: Joi.string().optional(),
-  gender: Joi.string().valid('male', 'female', 'other').optional(),
-  location: Joi.string().optional() // For owners
+  name: Joi.string().min(2).max(255).allow(null, '').optional(),
+  phone: Joi.string().allow(null, '').optional(),
+  about_me: Joi.string().allow(null, '').optional(),
+  city: Joi.string().allow(null, '').optional(),
+  country: Joi.string().allow(null, '').optional(),
+  languages: Joi.string().allow(null, '').optional(),
+  gender: Joi.string().valid('male', 'female', 'other').allow(null, '').optional(),
+  location: Joi.string().allow(null, '').optional() // For owners
 });
 
 // Get user profile
@@ -42,7 +42,18 @@ router.get('/profile', requireAuth, async (req, res) => {
 // Update user profile
 router.put('/profile', requireAuth, async (req, res) => {
   try {
-    const { error, value } = updateProfileSchema.validate(req.body);
+    // Clean the request body to convert empty strings to null for optional fields
+    const cleanedBody = {};
+    Object.keys(req.body).forEach(key => {
+      if (req.body[key] === '') {
+        // Convert empty strings to null for optional fields
+        cleanedBody[key] = null;
+      } else if (req.body[key] !== undefined && req.body[key] !== null) {
+        cleanedBody[key] = req.body[key];
+      }
+    });
+
+    const { error, value } = updateProfileSchema.validate(cleanedBody);
     if (error) {
       return res.status(400).json({ error: error.details[0].message });
     }
@@ -52,7 +63,7 @@ router.put('/profile', requireAuth, async (req, res) => {
     const values = [];
 
     Object.keys(value).forEach(key => {
-      if (value[key] !== undefined) {
+      if (value[key] !== undefined && value[key] !== null) {
         updates.push(`${key} = ?`);
         values.push(value[key]);
       }

@@ -83,7 +83,7 @@ class AgentResponse(BaseModel):
 
 # Initialize Ollama LLM
 ollama_base_url = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-llm = Ollama(model="mistral-small3.2:latest", base_url=ollama_base_url)
+llm = Ollama(model="mistral", base_url=ollama_base_url)
 
 # Initialize Tavily client if available
 tavily_client = None

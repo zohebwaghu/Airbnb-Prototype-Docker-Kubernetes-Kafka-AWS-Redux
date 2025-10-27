@@ -25,7 +25,7 @@ except ImportError:
     tavily_available = False
     print("Tavily not available - web search features will be limited")
 
-app = FastAPI(title="Airbnb AI Concierge Agent", version="1.0.0")
+app = FastAPI(title="Airbnb AI Concierge Agent", version="1.0.1")
 
 # CORS middleware
 app.add_middleware(

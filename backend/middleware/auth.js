@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 
+
 // Middleware to check if user is authenticated
 const requireAuth = (req, res, next) => {
   if (!req.session.userId) {

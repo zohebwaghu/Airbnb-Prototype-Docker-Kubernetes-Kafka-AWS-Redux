@@ -27,6 +27,7 @@ const testConnection = async () => {
 const initializeDatabase = async () => {
   try {
     console.log('Initializing database tables...');
+    // This function creates necessary tables if they don't exist
 
     const fs = require('fs').promises;
     const path = require('path');

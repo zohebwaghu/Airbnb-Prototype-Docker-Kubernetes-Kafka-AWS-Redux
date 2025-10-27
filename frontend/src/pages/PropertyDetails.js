@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import PhotoGalleryModal from '../components/PhotoGalleryModal';
@@ -11,6 +11,7 @@ const PropertyDetails = () => {
   const { user, isAuthenticated, isTraveler } = useAuth();
 
   const [property, setProperty] = useState(null);
+  const [similarProperties, setSimilarProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [bookingForm, setBookingForm] = useState({
@@ -25,6 +26,7 @@ const PropertyDetails = () => {
 
   useEffect(() => {
     fetchProperty();
+    window.scrollTo(0, 0);
   }, [id]);
 
   const fetchProperty = async () => {
@@ -32,11 +34,24 @@ const PropertyDetails = () => {
       setLoading(true);
       const response = await axios.get(`/properties/${id}`);
       setProperty(response.data.property);
+      
+      // Fetch similar properties
+      await fetchSimilarProperties(response.data.property.city, response.data.property.id);
     } catch (error) {
       setError('Failed to load property details');
       console.error('Error fetching property:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSimilarProperties = async (city, propertyId) => {
+    try {
+      const response = await axios.get(`/properties?city=${city}&limit=4`);
+      const filtered = (response.data.properties || []).filter(p => p.id !== parseInt(propertyId)).slice(0, 4);
+      setSimilarProperties(filtered);
+    } catch (error) {
+      console.error('Error fetching similar properties:', error);
     }
   };
 
@@ -62,21 +77,15 @@ const PropertyDetails = () => {
 
     try {
       setBookingLoading(true);
-      const response = await axios.post('/bookings', {
+      await axios.post('/bookings', {
         property_id: parseInt(id),
         ...bookingForm
       });
 
       setBookingMessage('Booking request submitted successfully!');
-      setBookingForm({
-        check_in_date: '',
-        check_out_date: '',
-        number_of_guests: 1,
-        special_requests: ''
-      });
+      setTimeout(() => setBookingMessage(''), 3000);
     } catch (error) {
       setBookingMessage(error.response?.data?.error || 'Failed to submit booking');
-      console.error('Error creating booking:', error);
     } finally {
       setBookingLoading(false);
     }
@@ -85,7 +94,7 @@ const PropertyDetails = () => {
   if (loading) {
     return (
       <div className="property-details-container">
-        <div className="spinner"></div>
+        <div className="loading-spinner"><div className="spinner"></div></div>
       </div>
     );
   }
@@ -118,33 +127,36 @@ const PropertyDetails = () => {
     return (base * nights) + cleaning + service;
   };
 
+  const amenitiesList = typeof property.amenities === 'string' 
+    ? JSON.parse(property.amenities) 
+    : property.amenities || [];
+
   return (
-    <div className="property-details-container">
-      <div className="property-title-section">
+    <div className="property-details-wrapper">
+      {/* Title Section */}
+      <div className="property-details-header">
         <h1>{property.name}</h1>
-        <p className="property-location-text">📍 {property.location}, {property.city}, {property.country}</p>
+        <div className="header-info">
+          <span className="location-link">📍 {property.city}, {property.country}</span>
+        </div>
       </div>
 
-      <div className="property-gallery">
+      {/* Photo Gallery */}
+      <div className="property-gallery-airbnb">
         {property.images && property.images.length > 0 ? (
           <>
-            <div className="gallery-main" onClick={() => setShowGallery(true)}>
-              <img src={property.images[0].image_url} alt={`${property.name} - Main`} />
+            <div className="gallery-main-large" onClick={() => setShowGallery(true)}>
+              <img src={property.images[0].image_url} alt={property.name} />
             </div>
-            <div className="gallery-grid">
+            <div className="gallery-grid-small">
               {property.images.slice(1, 5).map((image, index) => (
-                <div key={index} className="gallery-item" onClick={() => setShowGallery(true)}>
+                <div key={index} className="gallery-item-small" onClick={() => setShowGallery(true)}>
                   <img src={image.image_url} alt={`${property.name} - ${image.category}`} />
                 </div>
               ))}
-              {property.images.length < 5 && Array.from({ length: 5 - property.images.length }).map((_, index) => (
-                <div key={`placeholder-${index}`} className="gallery-item placeholder">
-                  <div className="no-image-small">No Image</div>
-                </div>
-              ))}
             </div>
-            <button className="view-all-photos-btn" onClick={() => setShowGallery(true)}>
-              <span>📷</span> Show all photos
+            <button className="view-all-photos-btn-airbnb" onClick={() => setShowGallery(true)}>
+              <span>⊞</span> Show all photos
             </button>
           </>
         ) : (
@@ -160,91 +172,64 @@ const PropertyDetails = () => {
         />
       )}
 
-      <div className="property-content">
-        <div className="property-header">
-          <div className="property-basic-info">
-            <h2>{property.property_type} in {property.city}</h2>
-            <div className="property-stats">
-              <span>{property.max_guests} guests</span>
-              <span>·</span>
-              <span>{property.bedrooms} bedroom{property.bedrooms > 1 ? 's' : ''}</span>
-              <span>·</span>
-              <span>{property.bathrooms} bath{property.bathrooms > 1 ? 's' : ''}</span>
+      {/* Main Content */}
+      <div className="property-main-content">
+        <div className="property-left-column">
+          {/* Header with host */}
+          <div className="property-header-section">
+            <div>
+              <h2>{property.property_type} in {property.city}</h2>
+              <div className="property-stats-inline">
+                {property.max_guests} guests · {property.bedrooms} bedroom{property.bedrooms > 1 ? 's' : ''} · {property.bathrooms} bath{property.bathrooms > 1 ? 's' : ''}
+              </div>
+            </div>
+            <div className="host-avatar-large">
+              {property.owner_name?.charAt(0).toUpperCase()}
             </div>
           </div>
 
-          <div className="host-info">
-            <div className="host-avatar">
-              {property.owner_name?.charAt(0).toUpperCase()}
+          <hr className="divider-light" />
+
+          {/* Description */}
+          <div className="property-section">
+            <p className="property-description">{property.description}</p>
+          </div>
+
+          <hr className="divider-light" />
+
+          {/* Amenities */}
+          <div className="property-section">
+            <h3>What this place offers</h3>
+            <div className="amenities-list">
+              {amenitiesList.slice(0, 10).map((amenity, index) => (
+                <div key={index} className="amenity-item">
+                  <span className="amenity-icon">✓</span>
+                  <span>{amenity}</span>
+                </div>
+              ))}
             </div>
-            <div className="host-details">
-              <p><strong>Hosted by {property.owner_name}</strong></p>
-              <p className="host-contact">{property.owner_email}</p>
-            </div>
+            {amenitiesList.length > 10 && (
+              <button className="show-all-amenities-btn">
+                Show all {amenitiesList.length} amenities
+              </button>
+            )}
           </div>
         </div>
 
-        <hr className="section-divider" />
-
-        <div className="property-details-grid">
-          <div className="property-info">
-            <h3>About this property</h3>
-            <p>{property.description}</p>
-
-            <div className="property-features">
-              <h4>Features</h4>
-              <div className="features-grid">
-                <div className="feature-item">
-                  <span className="feature-icon">🛏️</span>
-                  <span>{property.bedrooms} Bedrooms</span>
-                </div>
-                <div className="feature-item">
-                  <span className="feature-icon">🚿</span>
-                  <span>{property.bathrooms} Bathrooms</span>
-                </div>
-                <div className="feature-item">
-                  <span className="feature-icon">👥</span>
-                  <span>Up to {property.max_guests} guests</span>
-                </div>
+        {/* Booking Card */}
+        <div className="property-right-column">
+          <div className="booking-card-sticky">
+            <div className="booking-card-header">
+              <div className="price-display">
+                <span className="price-amount">${property.base_price}</span>
+                <span className="price-unit">night</span>
               </div>
             </div>
 
-            {property.amenities && (
-              <div className="amenities">
-                <h4>Amenities</h4>
-                <div className="amenities-list">
-                  {Array.isArray(property.amenities) ? (
-                    property.amenities.map((amenity, index) => (
-                      <span key={index} className="amenity-tag">{amenity}</span>
-                    ))
-                  ) : (
-                    <span className="amenity-tag">Amenities information not available</span>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="booking-section">
-            <div className="booking-card">
-              <h3>Book this property</h3>
-              <div className="price-info">
-                <p className="price-per-night">
-                  <strong>${property.base_price}</strong> per night
-                </p>
-                {bookingForm.check_in_date && bookingForm.check_out_date && (
-                  <div className="booking-summary">
-                    <p>{calculateNights()} nights × ${property.base_price} = ${(property.base_price * calculateNights()).toFixed(2)}</p>
-                    <p>Cleaning fee: ${property.cleaning_fee}</p>
-                    <p>Service fee: ${property.service_fee}</p>
-                    <p className="total-price"><strong>Total: ${calculateTotalPrice().toFixed(2)}</strong></p>
-                  </div>
-                )}
-              </div>
-
-              <form onSubmit={handleBookingSubmit} className="booking-form">
-                <div className="form-group">
-                  <label>Check-in Date</label>
+            <form onSubmit={handleBookingSubmit} className="booking-form-card">
+              <div className="booking-inputs-grid">
+                <div className="booking-input-item">
+                  <label>CHECK-IN</label>
                   <input
                     type="date"
                     name="check_in_date"
@@ -253,9 +238,8 @@ const PropertyDetails = () => {
                     required
                   />
                 </div>
-
-                <div className="form-group">
-                  <label>Check-out Date</label>
+                <div className="booking-input-item">
+                  <label>CHECKOUT</label>
                   <input
                     type="date"
                     name="check_out_date"
@@ -264,54 +248,87 @@ const PropertyDetails = () => {
                     required
                   />
                 </div>
+              </div>
 
-                <div className="form-group">
-                  <label>Number of Guests</label>
-                  <select
-                    name="number_of_guests"
-                    value={bookingForm.number_of_guests}
-                    onChange={handleBookingInputChange}
-                    required
-                  >
-                    {Array.from({ length: property.max_guests }, (_, i) => i + 1).map(num => (
-                      <option key={num} value={num}>{num} Guest{num > 1 ? 's' : ''}</option>
-                    ))}
-                  </select>
+              <div className="booking-input-item full-width">
+                <label>GUESTS</label>
+                <select
+                  name="number_of_guests"
+                  value={bookingForm.number_of_guests}
+                  onChange={handleBookingInputChange}
+                  required
+                >
+                  {[...Array(property.max_guests).keys()].map(i => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1} guest{i > 0 ? 's' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <button type="submit" className="reserve-btn" disabled={bookingLoading}>
+                {bookingLoading ? 'Processing...' : 'Reserve'}
+              </button>
+
+              {bookingMessage && (
+                <div className={`booking-message ${bookingMessage.includes('success') ? 'success' : 'error'}`}>
+                  {bookingMessage}
                 </div>
+              )}
 
-                <div className="form-group">
-                  <label>Special Requests (Optional)</label>
-                  <textarea
-                    name="special_requests"
-                    value={bookingForm.special_requests}
-                    onChange={handleBookingInputChange}
-                    placeholder="Any special requests or requirements..."
-                    rows="3"
-                  />
-                </div>
+              <p className="no-charge-text">You won't be charged yet</p>
 
-                {bookingMessage && (
-                  <div className={`booking-message ${bookingMessage.includes('success') ? 'success' : 'error'}`}>
-                    {bookingMessage}
+              {calculateNights() > 0 && (
+                <div className="price-breakdown">
+                  <div className="price-row">
+                    <span>${property.base_price} x {calculateNights()} nights</span>
+                    <span>${(toNum(property.base_price) * calculateNights()).toFixed(2)}</span>
                   </div>
-                )}
-
-                <button type="submit" className="book-btn" disabled={bookingLoading}>
-                  {bookingLoading ? 'Submitting Booking...' : 'Request to Book'}
-                </button>
-
-                {!isAuthenticated && (
-                  <p className="login-prompt">
-                    <a href="/login">Log in</a> or <a href="/signup">sign up</a> to book this property
-                  </p>
-                )}
-              </form>
-            </div>
+                  <div className="price-row">
+                    <span>Cleaning fee</span>
+                    <span>${toNum(property.cleaning_fee).toFixed(2)}</span>
+                  </div>
+                  <div className="price-row">
+                    <span>Service fee</span>
+                    <span>${toNum(property.service_fee).toFixed(2)}</span>
+                  </div>
+                  <hr className="divider-light" />
+                  <div className="price-row total">
+                    <span>Total</span>
+                    <span>${calculateTotalPrice().toFixed(2)}</span>
+                  </div>
+                </div>
+              )}
+            </form>
           </div>
         </div>
       </div>
+
+      {/* Similar Listings */}
+      {similarProperties.length > 0 && (
+        <div className="similar-listings-section">
+          <h2>Explore other options in {property.city}</h2>
+          <div className="similar-listings-grid">
+            {similarProperties.map(similar => (
+              <Link key={similar.id} to={`/property/${similar.id}`} className="similar-property-card">
+                <div className="similar-property-image">
+                  <img src={similar.primary_image} alt={similar.name} />
+                </div>
+                <div className="similar-property-info">
+                  <p className="similar-property-location">{similar.city}, {similar.country}</p>
+                  <p className="similar-property-name">{similar.name}</p>
+                  <p className="similar-property-price">
+                    <strong>${similar.base_price}</strong> night
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default PropertyDetails;
+

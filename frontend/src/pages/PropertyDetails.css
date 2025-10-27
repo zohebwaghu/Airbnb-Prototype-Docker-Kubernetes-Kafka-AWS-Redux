@@ -1,44 +1,100 @@
-.property-details-container {
-  max-width: 1280px;
+.property-details-wrapper {
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 24px 80px;
 }
 
-.property-title-section {
+.property-details-header {
   margin-bottom: 24px;
 }
 
-.property-title-section h1 {
+.property-details-header h1 {
   font-size: 1.625rem;
   font-weight: 600;
   color: var(--airbnb-black);
   margin-bottom: 8px;
 }
 
-.property-location-text {
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 0.875rem;
-  color: var(--airbnb-grey);
-  margin: 0;
 }
 
-.property-gallery {
+.location-link {
+  color: var(--airbnb-black);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.location-link:hover {
+  text-decoration: underline;
+}
+
+/* Airbnb-style Photo Gallery */
+.property-gallery-airbnb {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
   gap: 8px;
+  height: 500px;
   margin-bottom: 48px;
-  height: 480px;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
 }
 
-.view-all-photos-btn {
+.gallery-main-large {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.gallery-main-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.gallery-main-large:hover img {
+  transform: scale(1.05);
+}
+
+.gallery-grid-small {
+  grid-column: 2 / 4;
+  grid-row: 1 / 3;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 8px;
+}
+
+.gallery-item-small {
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.gallery-item-small img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.gallery-item-small:hover img {
+  transform: scale(1.05);
+}
+
+.view-all-photos-btn-airbnb {
   position: absolute;
-  bottom: 24px;
-  right: 24px;
-  background: white;
+  bottom: 20px;
+  right: 20px;
+  background-color: white;
   border: 1px solid var(--airbnb-black);
-  padding: 10px 18px;
+  padding: 10px 16px;
   border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 600;
@@ -47,116 +103,49 @@
   align-items: center;
   gap: 8px;
   transition: all 0.2s ease;
-  z-index: 2;
 }
 
-.view-all-photos-btn:hover {
-  background: var(--airbnb-light-grey);
-  transform: scale(1.04);
-}
-
-.gallery-main {
-  grid-row: 1 / 3;
-  height: 100%;
-}
-
-.gallery-main img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  cursor: pointer;
-}
-
-.gallery-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  height: 100%;
-}
-
-.gallery-item {
-  position: relative;
-  overflow: hidden;
-}
-
-.gallery-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.gallery-item img:hover {
+.view-all-photos-btn-airbnb:hover {
+  background-color: var(--airbnb-light-grey);
   transform: scale(1.05);
 }
 
-.gallery-item.placeholder {
-  background: var(--airbnb-light-grey);
+/* Main Content Layout */
+.property-main-content {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 100px;
+  margin-bottom: 48px;
 }
 
-.no-image-small {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: var(--airbnb-grey);
-  font-size: 0.875rem;
+.property-left-column {
+  min-width: 0;
 }
 
-.no-gallery {
-  grid-column: 1 / 3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--airbnb-light-grey);
-  color: var(--airbnb-grey);
-  border-radius: 12px;
-}
-
-.property-content {
-  margin-top: 48px;
-}
-
-.property-header {
+.property-header-section {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--airbnb-border);
+  margin-bottom: 24px;
 }
 
-.property-basic-info h2 {
+.property-header-section h2 {
   font-size: 1.375rem;
   font-weight: 600;
   color: var(--airbnb-black);
   margin-bottom: 8px;
-  text-transform: capitalize;
 }
 
-.property-stats {
-  display: flex;
-  gap: 8px;
-  font-size: 1rem;
-  color: var(--airbnb-black);
+.property-stats-inline {
+  font-size: 0.875rem;
+  color: var(--airbnb-grey);
 }
 
-.property-stats span {
-  color: var(--airbnb-black);
-}
-
-.host-info {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-
-.host-avatar {
+.host-avatar-large {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--airbnb-red);
+  background-color: var(--airbnb-red);
   color: white;
   display: flex;
   align-items: center;
@@ -166,192 +155,53 @@
   flex-shrink: 0;
 }
 
-.host-details p {
-  margin: 0;
-  font-size: 0.9375rem;
-}
-
-.host-details strong {
-  color: var(--airbnb-black);
-}
-
-.host-contact {
-  color: var(--airbnb-grey);
-  font-size: 0.875rem !important;
-}
-
-.section-divider {
+.divider-light {
   border: none;
-  border-top: 1px solid var(--airbnb-border);
+  border-top: 1px solid var(--airbnb-light-grey);
   margin: 32px 0;
 }
 
-.property-details-grid {
-  display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 80px;
-}
-
-.property-info h3 {
-  font-size: 1.375rem;
-  font-weight: 600;
-  color: var(--airbnb-black);
-  margin-bottom: 24px;
-}
-
-.property-info p {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--airbnb-grey);
+.property-section {
   margin-bottom: 32px;
 }
 
-.property-features,
-.amenities {
-  margin-top: 32px;
-}
-
-.property-features h4,
-.amenities h4 {
-  font-size: 1.125rem;
+.property-section h3 {
+  font-size: 1.375rem;
   font-weight: 600;
   color: var(--airbnb-black);
-  margin-bottom: 16px;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px;
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 1rem;
-  color: var(--airbnb-black);
-}
-
-.feature-icon {
-  font-size: 1.5rem;
-}
-
-.amenities-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.amenity-tag {
-  padding: 8px 16px;
-  background: var(--airbnb-light-grey);
-  border-radius: 20px;
-  font-size: 0.875rem;
-  color: var(--airbnb-black);
-}
-
-.booking-section {
-  position: sticky;
-  top: 24px;
-  align-self: start;
-}
-
-.booking-card {
-  border: 1px solid var(--airbnb-border);
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-}
-
-.booking-card h3 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--airbnb-black);
-  margin-bottom: 16px;
-}
-
-.price-info {
   margin-bottom: 24px;
 }
 
-.price-per-night {
-  font-size: 1.375rem;
-  color: var(--airbnb-black);
-  margin-bottom: 16px;
-}
-
-.price-per-night strong {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.booking-summary {
-  padding: 16px;
-  background: var(--airbnb-light-grey);
-  border-radius: 8px;
-  font-size: 0.9375rem;
-}
-
-.booking-summary p {
-  margin: 8px 0;
-  color: var(--airbnb-black);
-}
-
-.booking-summary .total-price {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--airbnb-border);
+.property-description {
   font-size: 1rem;
+  line-height: 1.6;
+  color: var(--airbnb-black);
 }
 
-.booking-form {
-  display: flex;
-  flex-direction: column;
+.amenities-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
 
-.form-group {
+.amenity-item {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-group label {
-  font-size: 0.875rem;
-  font-weight: 600;
+  align-items: center;
+  gap: 16px;
+  font-size: 1rem;
   color: var(--airbnb-black);
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
-  padding: 12px 16px;
-  border: 1px solid var(--airbnb-border);
-  border-radius: 8px;
-  font-size: 0.9375rem;
+.amenity-icon {
+  font-size: 1.5rem;
   color: var(--airbnb-black);
-  font-family: inherit;
-  transition: border-color 0.2s ease;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: var(--airbnb-black);
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-.book-btn {
-  background: var(--airbnb-red);
-  color: white;
-  border: none;
-  padding: 14px;
+.show-all-amenities-btn {
+  margin-top: 24px;
+  padding: 14px 24px;
+  background-color: white;
+  border: 1px solid var(--airbnb-black);
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
@@ -359,14 +209,124 @@
   transition: all 0.2s ease;
 }
 
-.book-btn:hover:not(:disabled) {
-  background: var(--airbnb-red-dark);
+.show-all-amenities-btn:hover {
+  background-color: var(--airbnb-light-grey);
+  transform: translateY(-2px);
+}
+
+/* Booking Card */
+.property-right-column {
+  position: relative;
+}
+
+.booking-card-sticky {
+  position: sticky;
+  top: 100px;
+  border: 1px solid var(--airbnb-light-grey);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.booking-card-header {
+  margin-bottom: 24px;
+}
+
+.price-display {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.price-amount {
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: var(--airbnb-black);
+}
+
+.price-unit {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--airbnb-black);
+}
+
+.booking-form-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.booking-inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--airbnb-light-grey);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.booking-input-item {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  border-right: 1px solid var(--airbnb-light-grey);
+}
+
+.booking-input-item:last-child {
+  border-right: none;
+}
+
+.booking-input-item.full-width {
+  grid-column: 1 / -1;
+  border: 1px solid var(--airbnb-light-grey);
+  border-radius: 8px;
+  border-top: none;
+}
+
+.booking-input-item label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--airbnb-black);
+  margin-bottom: 4px;
+}
+
+.booking-input-item input,
+.booking-input-item select {
+  border: none;
+  outline: none;
+  font-size: 0.875rem;
+  color: var(--airbnb-black);
+  background: transparent;
+  cursor: pointer;
+}
+
+.reserve-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(90deg, #E61E4D 0%, #E31C5F 50%, #D70466 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reserve-btn:hover {
   transform: scale(1.02);
 }
 
-.book-btn:disabled {
+.reserve-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.no-charge-text {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--airbnb-grey);
+  margin: 0;
 }
 
 .booking-message {
@@ -377,98 +337,186 @@
 }
 
 .booking-message.success {
-  background: #D7F4DD;
-  color: #0D653D;
+  background-color: #d4edda;
+  color: #155724;
 }
 
 .booking-message.error {
-  background: #FEF0F0;
-  color: #E31C5F;
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
-.login-prompt {
-  text-align: center;
+.price-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--airbnb-light-grey);
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
+  color: var(--airbnb-black);
+}
+
+.price-row.total {
+  font-weight: 700;
+  padding-top: 16px;
+  border-top: 1px solid var(--airbnb-light-grey);
+}
+
+/* Similar Listings */
+.similar-listings-section {
+  margin-top: 64px;
+  padding-top: 48px;
+  border-top: 1px solid var(--airbnb-light-grey);
+}
+
+.similar-listings-section h2 {
+  font-size: 1.625rem;
+  font-weight: 600;
+  color: var(--airbnb-black);
+  margin-bottom: 24px;
+}
+
+.similar-listings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.similar-property-card {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.similar-property-card:hover {
+  transform: translateY(-4px);
+}
+
+.similar-property-image {
+  width: 100%;
+  padding-top: 66%;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.similar-property-image img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.similar-property-card:hover .similar-property-image img {
+  transform: scale(1.05);
+}
+
+.similar-property-info {
+  padding: 0 4px;
+}
+
+.similar-property-location {
   font-size: 0.875rem;
   color: var(--airbnb-grey);
+  margin-bottom: 4px;
 }
 
-.login-prompt a {
-  color: var(--airbnb-red);
-  text-decoration: none;
+.similar-property-name {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--airbnb-black);
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.similar-property-price {
+  font-size: 0.9375rem;
+  color: var(--airbnb-black);
+}
+
+.similar-property-price strong {
   font-weight: 600;
 }
 
-.login-prompt a:hover {
-  text-decoration: underline;
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 100px 0;
 }
 
 .spinner {
+  border: 4px solid var(--airbnb-light-grey);
+  border-top: 4px solid var(--airbnb-red);
+  border-radius: 50%;
   width: 50px;
   height: 50px;
-  border: 4px solid var(--airbnb-light-grey);
-  border-top-color: var(--airbnb-red);
-  border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin: 60px auto;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .error-message {
-  background: #FEF0F0;
-  color: #E31C5F;
-  padding: 16px;
+  background-color: #f2dede;
+  color: #d9534f;
+  border: 1px solid #ebccd1;
+  padding: 20px;
   border-radius: 8px;
-  margin: 20px 0;
   text-align: center;
-  font-size: 0.9375rem;
+  margin: 40px auto;
+  max-width: 600px;
 }
 
-@media (max-width: 1024px) {
-  .property-gallery {
-    height: 400px;
-  }
-
-  .property-details-grid {
+@media (max-width: 1128px) {
+  .property-main-content {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 48px;
   }
 
-  .booking-section {
+  .booking-card-sticky {
     position: static;
   }
 }
 
 @media (max-width: 768px) {
-  .property-details-container {
-    padding: 16px;
+  .property-details-wrapper {
+    padding: 24px;
   }
 
-  .property-gallery {
+  .property-gallery-airbnb {
     grid-template-columns: 1fr;
+    grid-template-rows: 300px;
     height: auto;
   }
 
-  .gallery-main {
+  .gallery-main-large {
+    grid-column: 1;
     grid-row: 1;
-    height: 300px;
   }
 
-  .gallery-grid {
-    grid-template-columns: repeat(2, 1fr);
-    height: 200px;
+  .gallery-grid-small {
+    display: none;
   }
 
-  .property-header {
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .property-title-section h1 {
-    font-size: 1.25rem;
+  .amenities-list {
+    grid-template-columns: 1fr;
   }
 }
+

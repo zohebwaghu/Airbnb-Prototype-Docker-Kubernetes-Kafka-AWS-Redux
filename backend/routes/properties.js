@@ -121,14 +121,14 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Property not found' });
     }
 
-    // Get property images
+    // Get property images with categories
     const [images] = await pool.execute(
-      'SELECT image_url FROM property_images WHERE property_id = ? ORDER BY is_primary DESC',
+      'SELECT image_url, category, is_primary FROM property_images WHERE property_id = ? ORDER BY is_primary DESC',
       [propertyId]
     );
 
     const property = properties[0];
-    property.images = images.map(img => img.image_url);
+    property.images = images;
 
     res.json({ property });
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import PhotoGalleryModal from '../components/PhotoGalleryModal';
 import './PropertyDetails.css';
 
 const PropertyDetails = () => {
@@ -20,6 +21,7 @@ const PropertyDetails = () => {
   });
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingMessage, setBookingMessage] = useState('');
+  const [showGallery, setShowGallery] = useState(false);
 
   useEffect(() => {
     fetchProperty();
@@ -126,13 +128,13 @@ const PropertyDetails = () => {
       <div className="property-gallery">
         {property.images && property.images.length > 0 ? (
           <>
-            <div className="gallery-main">
-              <img src={property.images[0]} alt={`${property.name} - Main`} />
+            <div className="gallery-main" onClick={() => setShowGallery(true)}>
+              <img src={property.images[0].image_url} alt={`${property.name} - Main`} />
             </div>
             <div className="gallery-grid">
               {property.images.slice(1, 5).map((image, index) => (
-                <div key={index} className="gallery-item">
-                  <img src={image} alt={`${property.name} - ${index + 2}`} />
+                <div key={index} className="gallery-item" onClick={() => setShowGallery(true)}>
+                  <img src={image.image_url} alt={`${property.name} - ${image.category}`} />
                 </div>
               ))}
               {property.images.length < 5 && Array.from({ length: 5 - property.images.length }).map((_, index) => (
@@ -141,11 +143,22 @@ const PropertyDetails = () => {
                 </div>
               ))}
             </div>
+            <button className="view-all-photos-btn" onClick={() => setShowGallery(true)}>
+              <span>📷</span> Show all photos
+            </button>
           </>
         ) : (
           <div className="no-gallery">No Images Available</div>
         )}
       </div>
+
+      {showGallery && (
+        <PhotoGalleryModal
+          property={property}
+          images={property.images}
+          onClose={() => setShowGallery(false)}
+        />
+      )}
 
       <div className="property-content">
         <div className="property-header">

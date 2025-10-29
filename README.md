@@ -268,8 +268,8 @@ Use the Swagger UI at http://localhost:5002/api-docs for interactive API testing
 
 ## Author
 
-Devanshee Vyas
+Devanshee Vyas | Zoheb Waghu
 
 ## License
 
-This project is for educational purposes as part of Lab 1 assignment.
+This project is for educational purposes as part of the Lab 1 assignment.

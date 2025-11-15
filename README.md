@@ -1,6 +1,14 @@
 # Airbnb Clone - Full Stack Application
 
-A full-stack Airbnb clone with React frontend, Node.js backend, MySQL database, and AI-powered travel planning using FastAPI, LangChain, and Ollama.
+**Lab 2: Enhanced with Docker, Kubernetes, Kafka, MongoDB, AWS, and Redux**
+
+This repository contains both Lab 1 (original prototype) and Lab 2 (enhanced version) implementations.
+
+For Lab 2 specific documentation, see [README_LAB2.md](README_LAB2.md)
+
+---
+
+A full-stack Airbnb clone with React frontend, Node.js backend, MySQL database (Lab 1) / MongoDB (Lab 2), and AI-powered travel planning using FastAPI, LangChain, and Ollama.
 
 ## Features
 
@@ -30,26 +38,37 @@ A full-stack Airbnb clone with React frontend, Node.js backend, MySQL database, 
 
 ## Technology Stack
 
-**Frontend:** React 18, Axios, React Router  
-**Backend:** Node.js, Express.js, MySQL 8.0  
-**AI Agent:** Python FastAPI, LangChain, Ollama (Mistral model)  
-**Authentication:** Express-session with bcrypt  
-**Deployment:** Docker, Docker Compose  
-**API Documentation:** Swagger UI  
+**Lab 1:**
+- **Frontend:** React 18, Axios, React Router  
+- **Backend:** Node.js, Express.js, MySQL 8.0  
+- **AI Agent:** Python FastAPI, LangChain, Ollama (Mistral model)  
+- **Authentication:** Express-session with bcrypt  
+- **Deployment:** Docker, Docker Compose  
+
+**Lab 2 Enhancements:**
+- **Database:** MongoDB (replaces MySQL)
+- **Message Queue:** Apache Kafka for async messaging
+- **Orchestration:** Kubernetes
+- **State Management:** Redux Toolkit
+- **Cloud:** AWS deployment ready
 
 ## Prerequisites
 
 - Docker and Docker Compose
 - Git
 - Ollama (for AI agent functionality)
+- Kubernetes cluster (for Lab 2)
+- Node.js 18+ and Python 3.8+
 
 ## Installation and Setup
+
+### Lab 1 Setup
 
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd "Lab 1"
+git clone https://github.com/zohebwaghu/Airbnb-Prototype-Docker-Kubernetes-Kafka-AWS-Redux.git
+cd Airbnb-Prototype-Docker-Kubernetes-Kafka-AWS-Redux
 ```
 
 ### 2. Start Ollama (Required for AI Agent)
@@ -95,27 +114,38 @@ This command will:
 - Email: sophie@example.com
 - Password: password123
 
+## Lab 2 Setup
+
+See [LAB2_SETUP_GUIDE.md](LAB2_SETUP_GUIDE.md) for detailed Lab 2 setup instructions.
+
+Quick start:
+```bash
+# Start Kafka
+cd kafka && docker-compose up -d
+
+# Start MongoDB
+docker run -d -p 27017:27017 --name mongodb mongo:7.0
+
+# Deploy to Kubernetes
+kubectl apply -f kubernetes/
+```
+
 ## Project Structure
 
 ```
-Lab 1/
-├── backend/                # Node.js/Express.js API
-│   ├── routes/            # API endpoints
-│   ├── middleware/        # Authentication middleware
-│   ├── database.js        # MySQL connection
-│   └── server.js          # Main application
+├── backend/                # Node.js/Express.js API (Lab 1)
 ├── frontend/              # React application
-│   ├── src/
-│   │   ├── components/    # Reusable components
-│   │   ├── pages/         # Page components
-│   │   ├── context/       # React Context (Auth)
-│   │   └── App.js         # Main app component
-│   └── public/            # Static assets
 ├── ai-agent/              # Python FastAPI service
-│   ├── main.py            # AI agent implementation
-│   └── requirements.txt   # Python dependencies
 ├── database/              # Database schema
-│   └── schema.sql         # MySQL schema and seed data
+├── services/              # Microservices (Lab 2)
+│   ├── booking-service/
+│   ├── traveler-service/
+│   ├── owner-service/
+│   ├── property-service/
+│   └── shared/
+├── kafka/                 # Kafka infrastructure (Lab 2)
+├── kubernetes/            # K8s manifests (Lab 2)
+├── jmeter/                # Performance tests (Lab 2)
 └── docker-compose.yml     # Multi-service orchestration
 ```
 
@@ -154,69 +184,39 @@ Lab 1/
 
 ## Database Schema
 
-The application uses MySQL with the following main tables:
-- `users` - User accounts (travelers and owners)
-- `properties` - Property listings
-- `property_photos` - Property images
-- `bookings` - Booking requests and confirmations
-- `favorites` - User favorite properties
-- `reviews` - Property reviews and ratings
+**Lab 1:** MySQL with tables for users, properties, bookings, favorites, reviews
 
-See `database/schema.sql` for complete schema details.
+**Lab 2:** MongoDB with collections for users, properties, bookings, favorites, sessions
+
+See `database/schema.sql` for MySQL schema details.
 
 ## Authentication System
 
-- Session-based authentication using express-session
+- Session-based authentication using express-session (Lab 1)
+- JWT tokens with Redux state management (Lab 2)
 - Password hashing with bcrypt (salt rounds: 10)
-- Session cookies with configurable security settings
 - Role-based access control (traveler vs owner)
 
-## AI Agent Implementation
+## Lab 2 Features
 
-The AI travel concierge uses:
-- **Ollama** with Mistral model for LLM inference
-- **LangChain** for prompt engineering and response parsing
-- **Tavily API** (optional) for web search and local information
-- Fallback to mock responses if Ollama is unavailable
-
-### AI Agent Inputs
-- Booking context: location, check-in/out dates, party type
-- User preferences: budget level, interests, mobility needs
-- Dietary restrictions
-
-### AI Agent Outputs
-- Day-by-day itinerary (morning, afternoon, evening activities)
-- Activity recommendations with addresses and price tiers
-- Restaurant suggestions filtered by dietary preferences
-- Packing checklist based on weather and activities
+- **Microservices Architecture:** Split into Traveler, Owner, Property, Booking services
+- **Kafka Integration:** Async messaging for booking flow
+- **MongoDB:** NoSQL database with encrypted passwords
+- **Redux:** Centralized state management for frontend
+- **Kubernetes:** Container orchestration and scaling
+- **Performance Testing:** JMeter test plans for load testing
 
 ## Docker Configuration
 
 Services defined in `docker-compose.yml`:
 
-- **mysql**: MySQL 8.0 database (port 3307)
+- **mysql**: MySQL 8.0 database (port 3307) - Lab 1
+- **mongodb**: MongoDB 7.0 (port 27017) - Lab 2
 - **backend**: Node.js API (port 5002)
 - **frontend**: React app served via Nginx (port 3001)
 - **ai-agent**: Python FastAPI service (port 8000)
-
-### Environment Variables
-
-**Backend:**
-```
-NODE_ENV=production
-PORT=5000
-DB_HOST=mysql
-DB_NAME=airbnb_db
-DB_USER=airbnb_user
-DB_PASSWORD=airbnb_password
-SESSION_SECRET=your-session-secret
-```
-
-**AI Agent:**
-```
-OLLAMA_HOST=http://host.docker.internal:11434
-TAVILY_API_KEY=optional-api-key
-```
+- **kafka**: Apache Kafka broker (port 9092) - Lab 2
+- **zookeeper**: Zookeeper for Kafka (port 2181) - Lab 2
 
 ## Stopping the Application
 
@@ -232,44 +232,23 @@ docker-compose down -v
 
 ## Development Notes
 
-- Frontend uses React hooks (useState, useEffect, useContext)
+- Frontend uses React hooks (Lab 1) and Redux (Lab 2)
 - Backend uses async/await for all database operations
 - Input validation with Joi schemas
 - Error handling middleware for all routes
 - CORS configured for cross-origin requests
 - Health check endpoints for all services
 
-## Troubleshooting
-
-**Issue:** Application not loading  
-**Solution:** Clear browser cache or use incognito mode
-
-**Issue:** AI agent not working  
-**Solution:** Ensure Ollama is running with `ollama serve`
-
-**Issue:** Database connection errors  
-**Solution:** Wait for MySQL container to be fully initialized (check with `docker logs airbnb_mysql`)
-
-**Issue:** Login/signup fails  
-**Solution:** Check backend logs with `docker logs airbnb_backend`
-
 ## Testing
 
-Use the Swagger UI at http://localhost:5002/api-docs for interactive API testing. All endpoints include proper error handling and validation.
+Use the Swagger UI at http://localhost:5002/api-docs for interactive API testing.
 
-## Future Enhancements
+For Lab 2 performance testing, see `jmeter/test-plans/README.md`
 
-- Payment integration
-- Real-time messaging between hosts and travelers
-- Advanced search filters (amenities, property type)
-- Email notifications for booking confirmations
-- Mobile responsive design improvements
-- Multi-language support
-
-## Author
+## Authors
 
 Devanshee Vyas | Zoheb Waghu
 
 ## License
 
-This project is for educational purposes as part of the Lab 1 assignment.
+MIT License - This project is for educational purposes as part of DATA 236 Lab assignments.

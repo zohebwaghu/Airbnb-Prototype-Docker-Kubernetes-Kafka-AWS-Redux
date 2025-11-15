@@ -25,9 +25,10 @@ const handleBookingCreated = async (event) => {
     const db = getDB();
     const bookings = db.collection('bookings');
     
+    const { ObjectId } = require('mongodb');
     const booking = {
-      property_id: event.property_id,
-      traveler_id: event.traveler_id,
+      property_id: new ObjectId(event.property_id),
+      traveler_id: new ObjectId(event.traveler_id),
       check_in_date: new Date(event.check_in_date),
       check_out_date: new Date(event.check_out_date),
       number_of_guests: event.number_of_guests,
@@ -72,8 +73,9 @@ const handleBookingStatusUpdate = async (event) => {
       update.cancelled_by = event.cancelled_by;
     }
     
+    const { ObjectId } = require('mongodb');
     await bookings.updateOne(
-      { _id: require('mongodb').ObjectId.createFromHexString(event.booking_id) },
+      { _id: new ObjectId(event.booking_id) },
       { $set: update }
     );
     

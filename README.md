@@ -1,14 +1,9 @@
 # Airbnb Clone - Full Stack Application
 
-**Lab 2: Enhanced with Docker, Kubernetes, Kafka, MongoDB, AWS, and Redux**
-
-This repository contains both Lab 1 (original prototype) and Lab 2 (enhanced version) implementations.
-
-For Lab 2 specific documentation, see [README_LAB2.md](README_LAB2.md)
-
+Enhanced with Docker, Kubernetes, Kafka, MongoDB, AWS, and Redux**
 ---
 
-A full-stack Airbnb clone with React frontend, Node.js backend, MySQL database (Lab 1) / MongoDB (Lab 2), and AI-powered travel planning using FastAPI, LangChain, and Ollama.
+A full-stack Airbnb clone with React frontend, Node.js backend, MySQL database / MongoDB, and AI-powered travel planning using FastAPI, LangChain, and Ollama.
 
 ## Features
 
@@ -62,7 +57,7 @@ A full-stack Airbnb clone with React frontend, Node.js backend, MySQL database (
 
 ## Installation and Setup
 
-### Lab 1 Setup
+### Setup
 
 ### 1. Clone the Repository
 
@@ -79,7 +74,7 @@ Open a separate terminal and run:
 ollama serve
 ```
 
-Ensure Mistral model is downloaded:
+Ensure the Mistral model is downloaded:
 
 ```bash
 ollama pull mistral
@@ -114,9 +109,7 @@ This command will:
 - Email: sophie@example.com
 - Password: password123
 
-## Lab 2 Setup
-
-See [LAB2_SETUP_GUIDE.md](LAB2_SETUP_GUIDE.md) for detailed Lab 2 setup instructions.
+## Setup
 
 Quick start:
 ```bash
@@ -224,7 +217,7 @@ Services defined in `docker-compose.yml`:
 docker-compose down
 ```
 
-To remove all data including database:
+To remove all data, including the database:
 
 ```bash
 docker-compose down -v
@@ -243,7 +236,7 @@ docker-compose down -v
 
 Use the Swagger UI at http://localhost:5002/api-docs for interactive API testing.
 
-For Lab 2 performance testing, see `jmeter/test-plans/README.md`
+For performance testing, see `jmeter/test-plans/README.md`
 
 ## Authors
 
